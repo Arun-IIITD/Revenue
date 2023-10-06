@@ -77,11 +77,6 @@ def home():
                       )  
 
         fig.update_layout(
-        # title_text='Room Revenue Over Time\n',
-        # title_x=0.5,  # Center-align the title
-        # title_y=0.97,  # Adjust the vertical position of the title
-        # title_font_size=24,  # Increase the title font size
-        # title_pad_t=20,  # Add padding to the top of the title
         xaxis_title_text='Date',
         yaxis_title_text='Revenue',
         xaxis_title_font_size=16,  # Increase the x-axis label font size
@@ -91,6 +86,7 @@ def home():
         xaxis_rangeslider_bgcolor='lightgray',  # Set the background color of the range slider
         xaxis_rangeslider_bordercolor='gray',  # Set the border color of the range slider
         xaxis_rangeslider_borderwidth=1,  # Set the border width of the range slider
+        xaxis_rangeslider_range=[date1, date2],  # Set the initial date range
         xaxis_rangeselector=dict(
             buttons=list([
                 dict(count=7, label="1W", step="day", stepmode="backward"),
@@ -110,17 +106,18 @@ def home():
         fig.update_traces(mode="lines+markers", hovertemplate="Date: %{x}<br>Revenue: $%{y:,.2f}<extra></extra>")
         fig.update_xaxes(type='date', showgrid=True, gridwidth=1, gridcolor='lightgray')  # Add gridlines
         fig.update_yaxes(title_text='Revenue', showgrid=True, gridwidth=1, gridcolor='lightgray')  # Add gridlines
-        # Add annotations to highlight key points
-        fig.add_annotation(
-            x='2022-05-15',
-            y=16000,
-            text='Revenue Spike',
-            showarrow=True,
-            arrowhead=2,
-            arrowsize=1,
-            arrowwidth=2,
-            arrowcolor='red',
-        )
+       
+        # # Add annotations to highlight key points
+        # fig.add_annotation(
+        #     x='2022-05-15',
+        #     y=16000,
+        #     text='Revenue Spike',
+        #     showarrow=True,
+        #     arrowhead=2,
+        #     arrowsize=1,
+        #     arrowwidth=2,
+        #     arrowcolor='red',
+        # )
                 
         # Customize the layout
         fig.update_layout(

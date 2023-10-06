@@ -8,11 +8,14 @@ from datetime import datetime
 import datetime as dt
 import os
 
+#4files
+
+
 # create an SQLAlchemy engine
 engine = create_engine('sqlite:///mydatabase.db', echo=True)
 
 # read the Excel file into a pandas dataframe
-path = r"E:\SEM 5\IP\History and Forecasting"  
+path = r"D:\Arjun_Sir-IP-master\History and Forecast/"  
 # path = "/content/drive/My Drive/History and Forecast"
 
 columns = ["Actual Date", "Business Date", "Rooms Sold", "Rooms for Sale", "Arrival Rooms", "Compliment Rooms", "House Use", "Hold", "Individual Confirm", "Individual Tentative", "Group Confirm", "Group Tentative", "Occupancy %", "Room Revenue", "ARR", "Inclusion Revenue", "Departure Rooms", "OOO Rooms", "Pax", "Individual Revenue", "Individual ARR", "Confirmed Group Revenue", "Confirmed Group ARR", "Tentative Group Revenue", "Tentative Group ARR", "Total Room Inventory"]
@@ -41,13 +44,11 @@ for filename in os.listdir(path):
         df = pd.concat([df, pd.DataFrame([row_dict])], ignore_index=True)
 
 # Print the resulting dataframe
-print(df)
+#print(df)
 # write the dataframe to the SQLAlchemy database
-df.to_sql('mytable', con=engine, if_exists='replace', index=False)
+#df.to_sql('mytable', con=engine, if_exists='replace', index=False)
 
 import pymongo
-
-
 host = "localhost"
 port = 27017
 username = "Annu"
@@ -58,11 +59,30 @@ connection_uri = f"mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongod
 client = pymongo.MongoClient(connection_uri)
 db = client[database_name]
 # collection = db["revenue_table1"]
-collection = db["Forecasting"]
 
-#cursor = collection.find({})
+collection = db["Forecasting"]
+collection.delete_many({})
 data_to_insert = df.to_dict(orient='records')
-#collection = db["collection"]
 result = collection.insert_many(data_to_insert)
-print("Inserted document IDs:", result.inserted_ids)
+
+collection1 = db["History"]
+collection1.delete_many({})
+df1 = pd.read_excel("History and Forecast Report-20230208.xlsx")
+data1 = df1.to_dict(orient="records")
+result1 = collection1.insert_many(data1)
+
+collection2 = db["History_Fore"]
+collection2.delete_many({})
+df2 = pd.read_excel("History and Forecast Report-20220401-20230205.xls")
+data2 = df2.to_dict(orient="records")
+result2 = collection2.insert_many(data2)
+
+collection3 = db["Covid"]
+collection3.delete_many({})
+df3 = pd.read_excel("covid_room_revenue.xlsx")
+value = "1"
+df3.fillna(value, inplace=True)
+data3 = df3.to_dict(orient="records")
+result2 = collection3.insert_many(data3)
+
 client.close()

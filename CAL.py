@@ -3,6 +3,7 @@ import numpy as np
 from datetime import datetime
 import datetime
 import pandas as pd
+import pymongo
 #import Convert_toSQL as cts
 
 
@@ -63,12 +64,20 @@ def perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4):
                 #excel_sheet1.cell(row=i+1, column=)
 
     #lyrs  fit AG column 33
-    df = pd.read_excel('History and Forecast Report-20220401-20230205.xls')
+    connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
+    client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
+    database_name = "Revenue_Forecasting"
+    db = client[database_name]
+    collection2 = db["History_Fore"]
+    cursor2 = collection2.find({})
+    df = pd.DataFrame(list(cursor2))
     saleable = df.loc[7:len(df),'Unnamed: 6'].tolist()
     for j in range(0,len(saleable)):
         excel_sheet1.cell(row=j+5, column=33).value = saleable[j]
 
-    df2 = pd.read_excel('History and Forecast Report-20230208.xlsx')
+    collection1 = db["History"]
+    cursor1 = collection1.find({})
+    df2 = pd.DataFrame(list(cursor1))
     room_sold = df2.loc[3:55,'Unnamed: 2'].tolist()
     for j in range(len(room_sold)):
         excel_sheet1.cell(row=317+j, column=33).value = room_sold[j]
@@ -112,24 +121,15 @@ def perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4):
     for j in range(0,369):
         excel_sheet1.cell(row=j+5, column=39).value = 0
 
-    #Revenue Summary excel sheet 3
-    excel_file_path = 'covid_room_revenue.xlsx'
-    df23 = pd.read_excel(excel_file_path)
-
-    #converting all dates to month for getting data for specific month
-    monthly_data = pd.read_excel(excel_file_path)
-    monthly_data['Date'] = pd.to_datetime(monthly_data['Date'])
-    monthly_data['Month'] = monthly_data['Date'].dt.strftime('%Y-%m')
-
-    #finding sum of revenue in all months
-    monthly_total_revenue = monthly_data.groupby('Month')['Revenue'].sum().reset_index()
-    df23 = monthly_data.groupby('Month')['Unnamed: 27'].sum().reset_index()
-    df24 = monthly_data.groupby('Month')['Unnamed: 19'].sum().reset_index()
+    
     
 
     #for 2nd file 6 Feb - 9 Sep
     #converting all dates to month for getting data for specific month
-    monthly_data1 = pd.read_excel('revenue.xlsx')
+    collection = db["Forecasting"]
+    cursor = collection.find({})
+    monthly_data1 = pd.DataFrame(list(cursor))
+    #monthly_data1 = pd.read_excel('revenue.xlsx')
     monthly_data1['Business Date'] = pd.to_datetime(monthly_data1['Business Date'])
     monthly_data1['Month'] = monthly_data1['Business Date'].dt.strftime('%Y-%m')
     
@@ -138,6 +138,26 @@ def perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4):
     monthly_ARR =  monthly_data1.groupby('Month')['ARR'].sum().reset_index()
     Individual_ARR = monthly_data1.groupby('Month')['Individual ARR'].sum().reset_index()
     Group_Confirmed_Arr = monthly_data1.groupby('Month')['Confirmed Group ARR'].sum().reset_index()
+
+
+
+    #Revenue Summary excel sheet 3
+    collection3 = db["Covid"]
+    cursor3 = collection3.find({"Date": {"$type": ["date", "null"]}})
+    monthly_data = pd.DataFrame(list(cursor3))
+    
+    
+
+    value = "1"
+    monthly_data.fillna(value, inplace=True)
+    #converting all dates to month for getting data for specific month
+    #monthly_data = pd.read_excel(excel_file_path)
+    monthly_data['Date'] = pd.to_datetime(monthly_data['Date'])
+    monthly_data['Month'] = monthly_data['Date'].dt.strftime('%Y-%m')
+    #finding sum of revenue in all months
+    monthly_total_revenue = monthly_data.groupby('Month')['Revenue'].sum().reset_index()
+    df23 = monthly_data.groupby('Month')['Unnamed: 27'].sum().reset_index()
+    df24 = monthly_data.groupby('Month')['Unnamed: 19'].sum().reset_index()
 
 
     
@@ -161,27 +181,6 @@ def perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4):
 
         j+=4
 
-
-
-
-
-    
-        
-
-
-
-
-
-    
-
-
-
-    
-        
-                
-
-
-   
     excel_file1.save(r"D:\Arjun_Sir-IP-master\Upload\new_file1.xlsx")
     print("Done")
 

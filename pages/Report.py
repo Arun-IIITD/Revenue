@@ -4,7 +4,7 @@ import openpyxl
 import os
 import zipfile
 import io
-# from CAL import perform
+from CAL import perform
 # import Convert_toSQL as cts
 # Set the upload folder
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
@@ -90,6 +90,7 @@ if st.button("Process Data"):
 
         # Code for manually adding group confirm number
         excel_sheet2.cell(row=5, column=11).value = group_confirm
+        perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4)
         excel_file1.save(os.path.join(UPLOAD_FOLDER, "Final_Report.xlsx"))
         # Create a ZIP archive
         with zipfile.ZipFile(os.path.join(UPLOAD_FOLDER, "output.zip"), 'w') as zip_file:

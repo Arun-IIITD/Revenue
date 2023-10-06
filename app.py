@@ -62,16 +62,17 @@ def home():
     if not df.empty:
         # Display 'Room Revenue' for the selected date range
         total_room_revenue = df['Room Revenue'].sum()
-        # st.write('Room Revenue Over Time')
-        st.markdown("**Room Revenue Over Time**")
+        # st.markdown("**Room Revenue Over Time**")
+        st.markdown("<div class='section-title'>Room Revenue Over Time</div>", unsafe_allow_html=True)
+
         # Interactive chart using Plotly with hover info and different colors
         # fig = px.line(df, x='Business Date', y='Room Revenue', title='\nRoom Revenue Over Time\n\n',
         fig = px.line(df, x='Business Date', y='Room Revenue',
                       labels={'Business Date': 'Date', 'Room Revenue': 'Revenue'},
                     #   hover_data={'Room Revenue': ':,.2f'},  # Format hover value with comma separator
                       line_shape='linear',
-                    #   color_discrete_sequence=['#0074D9']
-                      color_discrete_sequence=px.colors.qualitative.Set1
+                      color_discrete_sequence=['#0074D9']
+                    #   color_discrete_sequence=px.colors.qualitative.Set1
 
                       )  
 
@@ -308,7 +309,8 @@ def report():
     # Main content area
     # st.markdown('<div class="container">', unsafe_allow_html=True)
     # st.markdown('<div class="header">Revenue Forecasting App</div>', unsafe_allow_html=True)
-    st.title('Forecast Report')
+    # st.title('Forecast Report')
+    st.markdown("<div class='section-title'>Forecast Report</div>", unsafe_allow_html=True)
 
     # User input section
     st.markdown('<div class="input-section">', unsafe_allow_html=True)

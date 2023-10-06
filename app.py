@@ -12,7 +12,7 @@ import os
 import zipfile
 from datetime import datetime, timedelta
 import io
-# from pages.Report import report
+from CAL import perform
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
 
@@ -247,17 +247,7 @@ def display_data():
         else:
             st.warning("Data not available for one or both of the selected dates.")
             
-        # else:
-        #     st.warning("No data available for the selected dates.")
-            
-    # elif section == "Performance":
-    #     st.header("Performance")
-        
-    #     # Add performance-related content here
-        
-    # elif section == "Future Months and Pickup":
-    #     st.header("Future Months and Pickup")
-
+    
 def report():
     # Create the upload folder if it doesn't exist
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -304,9 +294,6 @@ def report():
         unsafe_allow_html=True,
     )
     # Main content area
-    # st.markdown('<div class="container">', unsafe_allow_html=True)
-    # st.markdown('<div class="header">Revenue Forecasting App</div>', unsafe_allow_html=True)
-    # st.title('Forecast Report')
     st.markdown("<div class='section-title'>Forecast Report</div>", unsafe_allow_html=True)
 
     # User input section
@@ -340,8 +327,7 @@ def report():
 
             # Code for manually adding group confirm number
             excel_sheet2.cell(row=5, column=11).value = group_confirm
-            # perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4)
-
+            perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4)
             excel_file1.save(os.path.join(UPLOAD_FOLDER, "Final_Report.xlsx"))
             # Create a ZIP archive
             with zipfile.ZipFile(os.path.join(UPLOAD_FOLDER, "output.zip"), 'w') as zip_file:
@@ -358,7 +344,7 @@ def report():
 
     # Close the container div
     st.markdown('</div>', unsafe_allow_html=True)
-    # st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Home, Daily_Overview, Report, Performance, Future_Months_and_Pickup=st.tabs(["Home", "Daily Overview","Report", "Performance", "Future Months and Pickup"])
 Home, Daily_Overview, Report=st.tabs(["Home", "Daily Overview","Report"])

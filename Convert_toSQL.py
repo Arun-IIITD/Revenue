@@ -53,7 +53,7 @@ print(df)
 df.to_sql('mytable', con=engine, if_exists='replace', index=False)
 df.to_excel('revenue.xlsx',index = False)
 
-import pymongo
+#import pymongo
 # connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 # client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 # database_name = "Revenue_Forecasting"

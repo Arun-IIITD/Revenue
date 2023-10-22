@@ -126,7 +126,7 @@ def perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4):
 
     #for 2nd file 6 Feb - 9 Sep
     #converting all dates to month for getting data for specific month
-    collection = db["Forecasting"]
+    collection = db["Forecastin"]
     cursor = collection.find({})
     monthly_data1 = pd.DataFrame(list(cursor))
     #monthly_data1 = pd.read_excel('revenue.xlsx')

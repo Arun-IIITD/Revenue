@@ -20,18 +20,13 @@ df2 = pd.read_csv('weather.csv')
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":barchart:", layout="wide")
 
 st.title("Hotel Revenue Forecasting")
-# # MongoDB connection setup
-# connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
-# client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
-# database_name = "Revenue_Forecasting"
-# db = client[database_name]
-# collection = db["Forecasting"]
-
-connection_uri = "mongodb://localhost:27017/"
-client = pymongo.MongoClient(connection_uri)
-database_name = "revenue_database"
+# MongoDB connection setup
+connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
+client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
+database_name = "Revenue_Forecasting"
 db = client[database_name]
-collection = db["revenue_table1"]
+collection = db["Forecasting"]
+
 
 # Retrieve the starting and ending "Business Date" values from the database
 pipeline = [

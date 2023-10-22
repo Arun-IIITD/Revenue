@@ -63,6 +63,7 @@ db = client[database_name]
 
 collection = db["Forecastin"]
 collection.delete_many({})
+df = pd.read_excel("revenue.xlsx")
 data_to_insert = df.to_dict(orient='records')
 result = collection.insert_many(data_to_insert)
 

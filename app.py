@@ -25,7 +25,7 @@ connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 db = client[database_name]
-collection = db["Forecasting"]
+collection = db["Forecastin"]
 
 
 # Retrieve the starting and ending "Business Date" values from the database

@@ -47,6 +47,7 @@ for filename in os.listdir(path):
 #print(df)
 # write the dataframe to the SQLAlchemy database
 #df.to_sql('mytable', con=engine, if_exists='replace', index=False)
+df  = df.drop_duplicates(inplace=True)
 
 import pymongo
 host = "localhost"
@@ -60,7 +61,7 @@ client = pymongo.MongoClient(connection_uri)
 db = client[database_name]
 # collection = db["revenue_table1"]
 
-collection = db["Forecasting"]
+collection = db["Forecastin"]
 collection.delete_many({})
 data_to_insert = df.to_dict(orient='records')
 result = collection.insert_many(data_to_insert)
@@ -83,6 +84,12 @@ df3 = pd.read_excel("covid_room_revenue.xlsx")
 value = "1"
 df3.fillna(value, inplace=True)
 data3 = df3.to_dict(orient="records")
-result2 = collection3.insert_many(data3)
+result3 = collection3.insert_many(data3)
+
+collection4 = db["Prophet"]
+collection4.delete_many({})
+df4 = pd.read_excel("accuracy.xlsx")
+data4 = df4.to_dict(orient="records")
+result4 = collection4.insert_many(data4)
 
 client.close()

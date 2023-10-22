@@ -20,12 +20,19 @@ df2 = pd.read_csv('weather.csv')
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":barchart:", layout="wide")
 
 st.title("Hotel Revenue Forecasting")
-# MongoDB connection setup
-connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
-client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
-database_name = "Revenue_Forecasting"
+# # MongoDB connection setup
+# connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
+# client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
+# database_name = "Revenue_Forecasting"
+# db = client[database_name]
+# collection = db["Forecasting"]
+
+connection_uri = "mongodb://localhost:27017/"
+client = pymongo.MongoClient(connection_uri)
+database_name = "revenue_database"
 db = client[database_name]
-collection = db["Forecasting"]
+collection = db["revenue_table1"]
+
 # Retrieve the starting and ending "Business Date" values from the database
 pipeline = [
     {"$group": {"_id": None, "minDate": {"$min": "$Business Date"}, "maxDate": {"$max": "$Business Date"}}}
@@ -107,18 +114,7 @@ def home():
         fig.update_xaxes(type='date', showgrid=True, gridwidth=1, gridcolor='lightgray')  # Add gridlines
         fig.update_yaxes(title_text='Revenue', showgrid=True, gridwidth=1, gridcolor='lightgray')  # Add gridlines
        
-        # # Add annotations to highlight key points
-        # fig.add_annotation(
-        #     x='2022-05-15',
-        #     y=16000,
-        #     text='Revenue Spike',
-        #     showarrow=True,
-        #     arrowhead=2,
-        #     arrowsize=1,
-        #     arrowwidth=2,
-        #     arrowcolor='red',
-        # )
-                
+  
         # Customize the layout
         fig.update_layout(
             margin=dict(l=40, r=20, t=40, b=40),
@@ -145,7 +141,7 @@ def home():
         st.warning("No data available for the selected date range.")
 
 def display_data():
-    collection = db["Forecasting"]    
+    # collection = db["Forecasting"]    
     # CSS for styling
     css = """
     body {
@@ -247,7 +243,88 @@ def display_data():
         else:
             st.warning("Data not available for one or both of the selected dates.")
             
-    
+def  Revenue_analysis():
+    query = {"Business Date": {"$gte": date1, "$lte": date2}}
+    # Fetch data from MongoDB
+    cursor = collection.find(query)
+    # Convert MongoDB cursor to DataFrame
+    df = pd.DataFrame(list(cursor))
+
+    # data = list(collection.find())  # Fetch data as a list of documents
+    # df = pd.DataFrame(data)
+    # Define available chart options
+    chart_options = ["Revenue Breakdown", "Group Bookings", "Demand and Supply", "Customer Segmentation", "Ooo Rooms", "Inclusion Revenue", "Total Room Inventory"]
+    selected_option = chart_options[0]
+    selected_option = st.selectbox("Select Chart Option", chart_options, format_func=lambda option: option)
+    df['Business Date'] = pd.to_datetime(df['Business Date'])
+    fig = None
+
+    if selected_option == "Revenue Breakdown":
+        selected_columns = ["Room Revenue", "Individual Revenue", "Confirmed Group Revenue", "Tentative Group Revenue"]
+        fig = px.bar(df, x="Business Date", y=selected_columns, barmode="stack", title="Revenue Breakdown")
+    elif selected_option == "Group Bookings":
+        selected_columns = ["Confirmed Group Revenue", "Tentative Group Revenue"]
+        fig = px.line(df, x="Business Date", y=selected_columns, title="Group Booking Trends")
+    elif selected_option == "Demand and Supply":
+        selected_columns = ["Arrival Rooms", "Compliment Rooms"]
+        fig = px.bar(df, x="Business Date", y=selected_columns, title="Supply and Demand")
+    elif selected_option == "Customer Segmentation":
+        selected_columns = ["Individual Revenue", "Confirmed Group Revenue"]
+        fig = px.line(df, x="Business Date", y=selected_columns, title="Customer Segmentation")
+    elif selected_option == "Ooo Rooms": #Out of Order (OOO) Rooms
+        selected_columns = ["OOO Rooms"]
+        fig = px.bar(df, x="Business Date", y=selected_columns, title="Out of Order (OOO) Rooms")
+    elif selected_option == "Inclusion Revenue":
+        selected_columns = ["Inclusion Revenue"]
+        fig = px.line(df, x="Business Date", y=selected_columns, title="Inclusion Revenue")
+    else:  # "Total Room Inventory"
+        selected_columns = ["Total Room Inventory"]
+        fig = px.bar(df, x="Business Date", y=selected_columns, title="Total Room Inventory")
+
+    # Customize the chart's appearance
+    fig.update_layout(
+        xaxis_title="Business Date",
+        yaxis_title="Value",
+        template="plotly_dark",  # Apply a dark theme for aesthetics
+        # xaxis_rangeselector=dict(
+        #     buttons=list([
+        #         dict(count=7, label="Revenue Breakdown"),
+        #         dict(count=1, label="Group Bookings"),
+        #         dict(count=3, label="Demand and Supply"),
+        #         dict(count=6, label="Customer Segmentation"),
+        #         dict(count=1, label="Ooo Rooms"),
+        #         dict(count=1, label="Inclusion Revenue"),
+        #         dict(count=1, label="Total Room Inventory"),
+        #         dict(step="all")
+        #         ]),
+        #         # x=0.01,  # Adjust the horizontal position of the rangeselector
+        #         # xanchor='left',  # Anchor the rangeselector to the left
+        #     )
+        xaxis_rangeselector=dict(
+            buttons=list([
+                dict(count=7, label="1W", step="day"),
+                dict(count=1, label="1M", step="month"),
+                dict(count=3, label="3M", step="month"),
+                dict(count=6, label="6M", step="month"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(count=1, label="1Y", step="year"),
+                dict(step="all")
+                ]),
+                x=0.01,  # Adjust the horizontal position of the rangeselector
+                xanchor='left',  # Anchor the rangeselector to the left
+            )
+    )
+
+    # Add interactivity with hover information
+    fig.update_traces(hoverinfo='y+name')
+
+    # Display the interactive chart
+    st.plotly_chart(fig)
+
+    # Provide an option to download the chart as an image
+    if st.button("Download Chart as Image"):
+        st.image(fig.to_image(format="png"), use_container_width=True)
+
 def report():
     # Create the upload folder if it doesn't exist
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -347,12 +424,14 @@ def report():
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Home, Daily_Overview, Report, Performance, Future_Months_and_Pickup=st.tabs(["Home", "Daily Overview","Report", "Performance", "Future Months and Pickup"])
-Home, Daily_Overview, Report=st.tabs(["Home", "Daily Overview","Report"])
+Home, Daily_Overview,Revenue_Analysis, Report=st.tabs(["Home", "Daily Overview", "Revenue Analysis","Report"])
 
 with Home:
     home()
 with Daily_Overview:
     display_data()
+with  Revenue_Analysis:
+    Revenue_analysis()
 with Report:
     report()
 

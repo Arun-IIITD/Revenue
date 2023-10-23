@@ -13,6 +13,10 @@ import zipfile
 from datetime import datetime, timedelta
 import io
 from CAL import perform
+from prophet import Prophet
+from prophet.plot import add_changepoints_to_plot
+import altair as alt  
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
 
@@ -27,6 +31,11 @@ database_name = "Revenue_Forecasting"
 db = client[database_name]
 collection = db["Forecastin"]
 
+# connection_uri = "mongodb://localhost:27017/"
+# client = pymongo.MongoClient(connection_uri)
+# database_name = "revenue_database"
+# db = client[database_name]
+# collection = db["revenue_table1"]
 
 # Retrieve the starting and ending "Business Date" values from the database
 pipeline = [
@@ -244,6 +253,7 @@ def  Revenue_analysis():
     cursor = collection.find(query)
     # Convert MongoDB cursor to DataFrame
     df = pd.DataFrame(list(cursor))
+    st.write(df.columns)
 
     # data = list(collection.find())  # Fetch data as a list of documents
     # df = pd.DataFrame(data)
@@ -417,9 +427,156 @@ def report():
     # Close the container div
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+def prophet():
+    database_name = "Revenue_Forecasting"
+    db = client[database_name]
+
+    # Fetch data from MongoDB
+    collection4 = db["Prophet"]
+    cursor2 = collection4.find({})
+    data = pd.DataFrame(list(cursor2))
+
+    data.rename(columns={'Date': 'ds', 'Revenue': 'y'}, inplace=True)
+
+    # Initialize and fit the Prophet model
+    model = Prophet()
+    model.fit(data)
+
+    # Create a future DataFrame for forecasting (forecast for the next 7 days)
+    future = model.make_future_dataframe(periods=7)
+
+    # Generate forecasts
+    forecast = model.predict(future)
+
+    # ACTUAL REVENUE FOR 7 DAYS
+    actual_data = data.tail(7)
+
+    # PREDICTIONS FOR 7 DAYS
+    next_7_days_forecast = forecast.tail(7)
+
+    predictions_for_7_days = [int(x) for x in list(next_7_days_forecast['yhat'])]
+    actual_data_for_7_days = [int(x) for x in list(actual_data['y'])]
+
+    # Calculate accuracy as a percentage
+    accuracy = np.mean([pred / actual * 100 for pred, actual in zip(next_7_days_forecast['yhat'], actual_data['y'])])
+    # Calculate accuracy metrics
+    mae = mean_absolute_error(actual_data['y'], next_7_days_forecast['yhat'])
+    mse = mean_squared_error(actual_data['y'], next_7_days_forecast['yhat'])
+    rmse = np.sqrt(mse)
+
+    # trend = forecast[['ds', 'trend']]
+    # seasonality = forecast[['ds', 'seasonal', 'seasonal_lower', 'seasonal_upper']]
+    # holidays = forecast[['ds', 'holidays']]
+
+    # Page Title and Header
+    # st.markdown('Forecasting for next week')
+    st.markdown("<div class='section-title'>Forecasting for next week</div>", unsafe_allow_html=True)
+
+    # Data Presentation
+    col1, col2=st.columns((2))
+    with col1:
+        st.markdown('Prediction')
+        st.dataframe(pd.DataFrame({'Date': next_7_days_forecast['ds'], 'Predicted Revenue': predictions_for_7_days}))
+    with col2:
+        st.markdown('Actual Revenue')
+        st.dataframe(pd.DataFrame({'Date': actual_data['ds'], 'Actual Revenue': actual_data_for_7_days}))
+
+    # CSS for styling
+    st.markdown(
+        """
+        <style>
+        /* Adjust text size */
+        .big-text {
+            font-size: 20px;
+        }
+        
+        .small-text {
+            font-size: 14px; /* Adjust the font size as needed */
+        }
+
+        /* Style the table */
+        table.dataframe {
+            font-size: 16px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # st.subheader(f'Accuracy: {accuracy:.2f}%')
+    st.markdown(f'Accuracy: {accuracy:.2f}%')
+    # st.markdown("<style>.small-text { font-size: 14px; }</style>", unsafe_allow_html=True)
+
+    # # Visualize the forecast using Altair
+    # st.header('Revenue Forecast Plot (Altair Chart):')
+    # # Create an Altair Chart from the Matplotlib plot
+    # forecast_plot = alt.Chart(forecast).mark_line(point=True).encode(
+    #     x='ds:T',
+    #     y='Revenue Prediction:Q',
+    # ).interactive()  # Make the chart interactive
+    # st.altair_chart(forecast_plot, use_container_width=True)
+
+    # Create a styled Altair chart
+    st.markdown("<div class='section-title'>Revenue Forecast Plot</div>", unsafe_allow_html=True)
+    # st.header('Revenue Forecast Plot (Altair Chart):')
+    forecast_chart = alt.Chart(forecast).mark_line().encode(
+        x=alt.X('ds:T', title='Date', axis=alt.Axis(labelFontSize=12, titleFontSize=14)),
+        y=alt.Y('yhat:Q', title='Revenue Prediction', axis=alt.Axis(labelFontSize=12, titleFontSize=14)),
+        color=alt.value('blue'),  # Line color
+        strokeWidth=alt.value(2),  # Line width
+    ).properties(
+        width=700,  # Chart width
+        height=400,  # Chart height
+        title='Revenue Forecast',  # Chart title
+    ).configure_title(
+        fontSize=16,  # Title font size
+        anchor='start'  # Title alignment
+    ).configure_axis(
+        labelFontSize=12,  # Axis label font size
+        titleFontSize=14  # Axis title font size
+    )
+    # Display the Altair chart in Streamlit
+    st.altair_chart(forecast_chart, use_container_width=True)
+    # -------------------------------
+    st.markdown("<div class='section-title'>Revenue Components Plot</div>", unsafe_allow_html=True)
+    # st.header('Revenue Components Plot (Altair Chart):')
+    # Create an Altair Chart for components that closely resembles the Matplotlib plot
+    components_chart = alt.Chart(forecast).mark_area().encode(
+        x='ds:T',
+        y='trend:Q',
+        y2='yhat_upper:Q',
+        opacity=alt.value(0.5)
+    ).interactive()  # Make the chart interactive
+
+    # Display the Altair chart in Streamlit
+    st.altair_chart(components_chart, use_container_width=True)
+
+    # ------------------------------
+    # # Create a styled Altair chart for trend component
+    # st.header('Trend Component (Altair Chart):')
+    # st.markdown("<div class='section-title'>Revenue Forecast Plot</div>", unsafe_allow_html=True)
+    trend_chart = alt.Chart(forecast).mark_line().encode(
+        x=alt.X('ds:T', title='Date', axis=alt.Axis(labelFontSize=12, titleFontSize=14)),
+        y=alt.Y('trend:Q', title='Trend', axis=alt.Axis(labelFontSize=12, titleFontSize=14)),
+        color=alt.value('blue'),  # Line color
+        strokeWidth=alt.value(2),  # Line width
+    ).properties(
+        width=700,  # Chart width
+        height=400,  # Chart height
+        title='Trend Component',  # Chart title
+    ).configure_title(
+        fontSize=16,  # Title font size
+        anchor='start'  # Title alignment
+    ).configure_axis(
+        labelFontSize=12,  # Axis label font size
+        titleFontSize=14  # Axis title font size
+    )
+
+    # Display the Trend Component chart in Streamlit
+    st.altair_chart(trend_chart, use_container_width=True)
 
 # Home, Daily_Overview, Report, Performance, Future_Months_and_Pickup=st.tabs(["Home", "Daily Overview","Report", "Performance", "Future Months and Pickup"])
-Home, Daily_Overview,Revenue_Analysis, Report=st.tabs(["Home", "Daily Overview", "Revenue Analysis","Report"])
+Home, Daily_Overview,Revenue_Analysis, Report, Pridiction=st.tabs(["Home", "Daily Overview", "Revenue Analysis","Report", "Pridiction"])
 
 with Home:
     home()
@@ -429,7 +586,8 @@ with  Revenue_Analysis:
     Revenue_analysis()
 with Report:
     report()
-
+with Pridiction:
+    prophet()
 client.close()
 
 

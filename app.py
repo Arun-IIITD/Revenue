@@ -253,14 +253,15 @@ def  Revenue_analysis():
     cursor = collection.find(query)
     # Convert MongoDB cursor to DataFrame
     df = pd.DataFrame(list(cursor))
-    st.write(df.columns)
+    # st.write(df.columns)
 
     # data = list(collection.find())  # Fetch data as a list of documents
     # df = pd.DataFrame(data)
     # Define available chart options
     chart_options = ["Revenue Breakdown", "Group Bookings", "Demand and Supply", "Customer Segmentation", "Ooo Rooms", "Inclusion Revenue", "Total Room Inventory"]
     selected_option = chart_options[0]
-    selected_option = st.selectbox("Select Chart Option", chart_options, format_func=lambda option: option)
+    # selected_option = st.selectbox("Select Chart Option", chart_options, format_func=lambda option: option)
+    selected_option = st.selectbox("Select Analysis", chart_options, format_func=lambda option: option)
     df['Business Date'] = pd.to_datetime(df['Business Date'])
     fig = None
 

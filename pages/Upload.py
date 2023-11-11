@@ -17,17 +17,17 @@ db = client[database_name]
 st.set_page_config(page_title="File Upload", page_icon=":page_with_curl:")
 
 # Check password for specific collections
-protected_collections = ["History_Fore", "Forecastin", "Covid", "History", "Prophet"]
+protected_collections = ["History_Fore", "Forecastin", "Covid", "History", "Prophet", "new"]
 
 
 # Sidebar for configuration settings
 st.subheader("Manage Forecasting Database")
 col1, col2 = st.columns(2)
 with col1:
-    collection_name = st.text_input("Enter Collection Name:")
+    collection_name = st.text_input("Enter new/existing Collection Name:")
 
 with col2:
-    password = st.text_input("Enter Password:", type="password")
+    password = st.text_input("Enter Password(*For Admin Access):", type="password")
     if password == "AdityaRay117" :
         st.success("Password is correct. You have access to protected collections.")
 uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx"])
@@ -40,8 +40,8 @@ columns = ["Actual Date", "Business Date", "Rooms Sold", "Rooms for Sale", "Arri
            "Tentative Group Revenue", "Tentative Group ARR", "Total Room Inventory"]
 df = pd.DataFrame(columns=columns)
 # st.title("Manage Collection")
-with st.expander("**Collections**", expanded=True):
-    # collections_in_db = client[database_name].list_collection_names()
+with st.expander("**Existing Collections**", expanded=True):
+    collections_in_db = client[database_name].list_collection_names()
 
     # Check if an Excel file is uploaded and a collection name is provided
     if uploaded_file and collection_name:
@@ -124,32 +124,39 @@ with st.expander("**Collections**", expanded=True):
     else:
         if collection_name and collection_name in collections_in_db:
             all_data = list(db[collection_name].find())
-            # st.write(collections_in_db)
+            # st.write(all_data)
 
             # Collection management section
             if all_data:
                 all_df = pd.DataFrame(all_data)
+                st.write(all_df)
+                collections_in_db = client[database_name].list_collection_names()
+                if collection_name in protected_collections and password != "AdityaRay117":
+                    st.error("Only admins can make changes in this collection.")
+                else:
+                    st.markdown("**Delete Rows**")
+                    # delete_rows_dates = st.multiselect("Choose Business Dates to Delete Rows:", all_df["Business Date"].unique())
+                    multiselect_options = all_df.iloc[:, 2].unique()
+                    delete_rows_dates = st.multiselect("Choose Business Dates to Delete Rows:", multiselect_options)
 
-                st.markdown("**Delete Rows**")
-                delete_rows_dates = st.multiselect("Choose Business Dates to Delete Rows:", all_df["Business Date"].unique())
-                if st.button("Delete Rows"):
-                    try:
-                        # Delete rows based on the chosen Business Dates
-                        db[collection_name].delete_many({"Business Date": {"$in": delete_rows_dates}})
-                        st.success(f"Rows for selected Business Dates successfully deleted!")
-                    except Exception as e:
-                        st.error(f"Error deleting rows from database: {e}")
-
-                if collection_name not in protected_collections or password == "AdityaRay117":
-                    st.markdown("**Drop Collection**")
-                    st.markdown("This action will permanently delete this collection.")
-                    if st.button("Drop Collection"):
+                    if st.button("Delete Rows"):
                         try:
-                            # Drop the entire collection
-                            db[collection_name].drop()
-                            st.success(f"Collection {collection_name} successfully dropped!")
+                            # Delete rows based on the chosen Business Dates
+                            db[collection_name].delete_many({"Business Date": {"$in": delete_rows_dates}})
+                            st.success(f"Rows for selected Business Dates successfully deleted!")
                         except Exception as e:
-                            st.error(f"Error dropping collection: {e}")
+                            st.error(f"Error deleting rows from database: {e}")
+
+                    if collection_name not in protected_collections or password == "AdityaRay117":
+                        st.markdown("**Drop Collection**")
+                        st.markdown("This action will permanently delete this collection.")
+                        if st.button("Drop Collection"):
+                            try:
+                                # Drop the entire collection
+                                db[collection_name].drop()
+                                st.success(f"Collection {collection_name} successfully dropped!")
+                            except Exception as e:
+                                st.error(f"Error dropping collection: {e}")
                     # else:
                     #     st.warning("This action will permanently delete the entire collection. Proceed with caution.")
             else:

@@ -50,7 +50,7 @@ current_date = datetime.now().strftime("%Y-%m-%d")
 previous_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 # Dropdown options for the second date
-date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday", "Custom Date"]
+date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday"]
 st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
 
 # Sidebar to select dates
@@ -63,8 +63,8 @@ elif date_option == "Last Year Same Date":
     date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
 elif date_option == "Last Year Same Weekday":
     date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(weeks=52)).strftime("%Y-%m-%d")
-else:
-    date2 = st.date_input("Select Custom Date:", datetime.strptime(previous_date, "%Y-%m-%d"))
+# else:
+#     date2 = st.date_input("Select Custom Date:", datetime.strptime(previous_date, "%Y-%m-%d"))
 
 col1, col2 = st.columns((2))
 with col1:

@@ -23,7 +23,24 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
 df2 = pd.read_csv('weather.csv')
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":barchart:", layout="wide")
 
-st.title("Hotel Revenue Forecasting")
+# Define a custom CSS style for the fixed header
+header_style = """
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+background-color: #1E90FF;
+color: white;
+padding: 10px;
+text-align: center;
+"""
+
+# Create the fixed header using the custom CSS style
+st.markdown(f'<div style="{header_style}">Hotel Revenue Forecasting</div>', unsafe_allow_html=True)
+
+
+# Display the styled header using st.write()
+# st.write(header_text, unsafe_allow_html=True)
 # MongoDB connection setup
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
@@ -577,7 +594,7 @@ def prophet():
     st.altair_chart(trend_chart, use_container_width=True)
 
 # Home, Daily_Overview, Report, Performance, Future_Months_and_Pickup=st.tabs(["Home", "Daily Overview","Report", "Performance", "Future Months and Pickup"])
-Home, Daily_Overview,Revenue_Analysis, Report, Pridiction=st.tabs(["Home", "Daily Overview", "Revenue Analysis","Report", "Pridiction"])
+Home, Daily_Overview,Revenue_Analysis, Report, Prediction=st.tabs(["Home", "Daily Overview", "Revenue Analysis","Report", "Prediction"])
 
 with Home:
     home()
@@ -587,7 +604,7 @@ with  Revenue_Analysis:
     Revenue_analysis()
 with Report:
     report()
-with Pridiction:
+with Prediction:
     prophet()
 client.close()
 

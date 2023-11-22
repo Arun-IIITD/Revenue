@@ -1,22 +1,8 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-# import matplotlib.pyplot as plt
 import datetime
-from statsmodels.tsa.arima.model import ARIMA
-import plotly.express as px
 import pymongo
-# import sys
-# import openpyxl
-import os
-# import zipfile
 from datetime import datetime, timedelta
-import io
-# from CAL import perform
-# from prophet import Prophet
-# from prophet.plot import add_changepoints_to_plot
-# import altair as alt  
-# from sklearn.metrics import mean_absolute_error, mean_squared_error
 from datetime import datetime, timedelta
 
 # UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
@@ -35,10 +21,6 @@ color: white;
 padding: 10px;
 text-align: center;
 """
-
-# # Create the fixed header using the custom CSS style
-# st.markdown(f'<div style="{header_style}">Hotel Revenue Forecasting</div>', unsafe_allow_html=True)
-
 # MongoDB connection setup
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
@@ -53,8 +35,6 @@ previous_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday"]
 st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
 
-# Sidebar to select dates
-# date_option = st.selectbox("Select Date Option for the Second Date:", date_options)
 date1_default = current_date
 date2_default = previous_date
 col1, col2 = st.columns(2)
@@ -132,15 +112,11 @@ css = """
         text-align: right;
     }
 """
-
-# Apply CSS to the HTML elements
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
-
 st.markdown(f"<div class='date-display'> {date1} vs {date2} incl. tentative</div>", unsafe_allow_html=True)
 
 
 def display_data():
-    # CSS for styling
     css = """
     body {
         background-color: #ffffff;
@@ -177,28 +153,20 @@ def display_data():
         color: {card_text_color};
     }
     """
-
-    # Apply CSS to the HTML elements
     st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
-    # st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
     # MongoDB query to find data for the two selected dates
     query = {"Business Date": {"$in": [date1, date2]}}
     cursor = collection.find(query)
-    
-    # Convert MongoDB cursor to DataFrame
     df = pd.DataFrame(list(cursor))
     
     if not df.empty:
-        # Extract data for the two selected dates
         date1_data = df[df["Business Date"] == date1]
         date2_data = df[df["Business Date"] == date2]
         # Check if data exists for both selected dates
         if not date1_data.empty and not date2_data.empty:
-
             def display_field(field_name, date1_data, date2_data):
                 field_diff = date2_data[field_name].iloc[0] - date1_data[field_name].iloc[0]
                 color = "red" if isinstance(field_diff, (int, float)) and field_diff < 0 else "green"
-                
                 st.markdown(
                     f"<div class='card'>"
                     f"<p>{field_name}</p>"
@@ -215,8 +183,6 @@ def display_data():
             # Display values for each field
             fields = ["Occupancy %", "ARR", "Arrival Rooms", "OOO Rooms", "Pax", "Room Revenue", "Rooms for Sale", "Departure Rooms", "House Use", "Total Room Inventory"]
             col1, col2, col3 = st.columns(3)
-
-            # # Display values for each field
             for i, field in enumerate(fields):
                 if i % 3 == 0:
                     card_column = col1

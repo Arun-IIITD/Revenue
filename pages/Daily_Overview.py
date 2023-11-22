@@ -1,24 +1,25 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import datetime
 from statsmodels.tsa.arima.model import ARIMA
 import plotly.express as px
 import pymongo
-import sys
-import openpyxl
+# import sys
+# import openpyxl
 import os
-import zipfile
+# import zipfile
 from datetime import datetime, timedelta
 import io
-from CAL import perform
-from prophet import Prophet
-from prophet.plot import add_changepoints_to_plot
-import altair as alt  
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+# from CAL import perform
+# from prophet import Prophet
+# from prophet.plot import add_changepoints_to_plot
+# import altair as alt  
+# from sklearn.metrics import mean_absolute_error, mean_squared_error
+from datetime import datetime, timedelta
 
-UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
+# UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
 
 df2 = pd.read_csv('weather.csv')
 st.set_page_config(page_title="Daily Overview", page_icon=":overview", layout="wide")
@@ -45,7 +46,6 @@ database_name = "Revenue_Forecasting"
 db = client[database_name]
 collection = db["Forecastin"]
 
-# Get current date and previous date
 current_date = datetime.now().strftime("%Y-%m-%d")
 previous_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
@@ -54,28 +54,28 @@ date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday"
 st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
 
 # Sidebar to select dates
-date_option = st.selectbox("Select Date Option for the Second Date:", date_options)
+# date_option = st.selectbox("Select Date Option for the Second Date:", date_options)
 date1_default = current_date
 date2_default = previous_date
-if date_option == "Previous Date":
-    date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
-elif date_option == "Last Year Same Date":
-    date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
-elif date_option == "Last Year Same Weekday":
-    date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(weeks=52)).strftime("%Y-%m-%d")
-# else:
-#     date2 = st.date_input("Select Custom Date:", datetime.strptime(previous_date, "%Y-%m-%d"))
-
-col1, col2 = st.columns((2))
+col1, col2 = st.columns(2)
 with col1:
-    # date1 = st.date_input("Select Start Date:", datetime.strptime(current_date, "%Y-%m-%d"))
     date1 = st.date_input("Select Date:", datetime.strptime(current_date, "%Y-%m-%d"))
 with col2:
-    # date2 = st.date_input("Select End Date:", datetime.strptime(date2, "%Y-%m-%d"))
-    date2 = st.date_input("Select comparision Date:", datetime.strptime(date2, "%Y-%m-%d"))
+    date_option = st.selectbox("Relative to:", date_options)
+
+    if date_option == "Previous Date":
+        date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
+    elif date_option == "Last Year Same Date":
+        date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
+    elif date_option == "Last Year Same Weekday":
+        date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(weeks=52)).strftime("%Y-%m-%d")
+
+# with col2:
+    date2 =  datetime.strptime(date2, "%Y-%m-%d")
 # Convert selected dates to ISO format for MongoDB query
 date1 = date1.strftime("%Y-%m-%d")
 date2 = date2.strftime("%Y-%m-%d")
+
 css = """
     body {
         background-color: #f8f9fa !important;
@@ -136,17 +136,9 @@ css = """
 # Apply CSS to the HTML elements
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
-# # Display the header
-# st.markdown("<div class='header'>Hotel Revenue Forecasting</div>", unsafe_allow_html=True)
-
-# Display the selected dates in one line
-st.markdown(f"<div class='date-display'>Selected Date Range: {date1} to {date2}</div>", unsafe_allow_html=True)
+st.markdown(f"<div class='date-display'> {date1} vs {date2} incl. tentative</div>", unsafe_allow_html=True)
 
 
-
-# # Convert selected dates to ISO format for MongoDB query
-# date1 = date1.strftime("%Y-%m-%d")
-# date2 = date2.strftime("%Y-%m-%d")
 def display_data():
     # CSS for styling
     css = """

@@ -5,17 +5,128 @@ from datetime import datetime
 from openpyxl import load_workbook
 import io
 import pymongo
-# MongoDB connection setup
+import os
+st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
+def set_custom_styles():
+    """
+    Custom styles to hide Streamlit default elements and adjust margins.
+    """
+
+    custom_styles="""
+    <style>
+    MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility:hidden;}
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica", sans-serif;
+    }
+    [data-testid="collapsedControl"] {
+        display: none
+    }     
+    .main {
+        # margin-left: -80px;
+        padding: 20px;
+        # margin-top:  -110px; 
+        margin-left: -3rem;
+        margin-top: -7rem;
+        margin-right: -103rem;
+    }
+    .section-title {
+        font-weight: bold;
+        font-size: 24px;
+    }
+    .big-text {
+        font-size: 20px;
+    }
+
+    .small-text {
+        font-size: 14px;
+    }
+
+    </style>
+    """
+    st.markdown(custom_styles, unsafe_allow_html=True)
+def custom_top_bar(selected_page=None):
+    """
+    Custom HTML for a fixed top bar.
+    """
+    selected_page = selected_page or "Upload"
+    # current_file = __file__.split("/")[-1]
+    current_file = os.path.basename(__file__)
+    custom_top_bar = f"""
+    <style>
+        #top-bar {{
+            padding: 10px;
+            # border-bottom: 1px solid #555;
+            border-bottom: 1px solid #ccc;
+            # color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        #top-bar h3 {{
+            padding: 10px;
+            font-weight: bold;
+            font-size: 24px;
+        }}
+        #nav-links {{
+            display: flex;
+            align-items: center;
+        }}
+        #nav-links a {{            
+            text-decoration: none;
+            margin-right: 20px;
+            font-size: 16px;
+            # font-family: "Source Sans Pro", sans-serif;
+            # font-weight: 400;
+            # transition: color 0.3s ease-in-out;
+        }}
+        #nav-links a:hover {{
+            # color: #00bcd4;
+            color: rgb(255, 75, 75);
+        }}
+    </style>
+    <div id="top-bar">
+        <h3 style="font-weight: bold; color: grey;">Revenue Forecasting</h3>
+        <div id="nav-links">
+            <a style="color: {'red' if selected_page == 'Home' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Home' else 'none'}" href="/Home" target="_self">Home</a>
+            <a style="color: {'red' if selected_page == 'Daily_Overview' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Daily_Overview' else 'none'}" href="/Daily_Overview" target="_self">Daily Overview</a>
+            <a style="color: {'red' if selected_page == 'Revenue_Analysis' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Revenue_Analysis' else 'none'}" href="/Revenue_Analysis" target="_self">Revenue Analysis</a>
+            <a style="color: {'red' if selected_page == 'Report' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Report' else 'none'}" href="/Report" target="_self">Report</a>
+            <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
+            <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
+        </div>
+    </div>
+    """
+    st.markdown(custom_top_bar, unsafe_allow_html=True)
+
+# custom_top_bar()
+set_custom_styles()
+
+url_path = st.experimental_get_query_params().get("pages", [""])[0]
+url_to_page = {
+    "/Home": "Home",
+    "/Daily_Overview": "Daily_Overview",
+    "/Revenue_Analysis": "Revenue_Analysis",
+    "/Report": "Report",
+    "/Prediction": "Prediction",
+    "/upload": "Upload",
+}
+selected_page = url_to_page.get(url_path)
+custom_top_bar(selected_page)
+#-------------------------------------------------------------------
+
+
+st.markdown("\n")
+st.markdown("\n")
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 client = MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 
 # Define the db variable
 db = client[database_name]
-
-# Streamlit page configuration
-st.set_page_config(page_title="File Upload", page_icon=":page_with_curl:")
-
 # Check password for specific collections
 protected_collections = ["History_Fore", "Forecastin", "Covid", "History", "Prophet", "new"]
 

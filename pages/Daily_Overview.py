@@ -2,25 +2,123 @@ import streamlit as st
 import pandas as pd
 import datetime
 import pymongo
+import os
 from datetime import datetime, timedelta
 from datetime import datetime, timedelta
+from streamlit_extras.switch_page_button import switch_page
 
-# UPLOAD_FOLDER = os.path.join(os.getcwd(), "Upload")
+st.set_page_config(page_title="Daily Overview", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
+# st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
+def set_custom_styles():
+    """
+    Custom styles to hide Streamlit default elements and adjust margins.
+    """
 
-df2 = pd.read_csv('weather.csv')
-st.set_page_config(page_title="Daily Overview", page_icon=":overview", layout="wide")
+    custom_styles="""
+    <style>
+    MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility:hidden;}
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica", sans-serif;
+    }
+    [data-testid="collapsedControl"] {
+        display: none
+    }     
+    .main {
+        # margin-left: -80px;
+        padding: 20px;
+        # margin-top:  -110px; 
+        margin-left: -3rem;
+        margin-top: -7rem;
+        margin-right: -103rem;
+    }
+    .section-title {
+        font-weight: bold;
+        font-size: 24px;
+    }
+    .big-text {
+        font-size: 20px;
+    }
 
-# Define a custom CSS style for the fixed header
-header_style = """
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-background-color: #1E90FF;
-color: white;
-padding: 10px;
-text-align: center;
-"""
+    .small-text {
+        font-size: 14px;
+    }
+
+    </style>
+    """
+    st.markdown(custom_styles, unsafe_allow_html=True)
+def custom_top_bar(selected_page=None):
+    """
+    Custom HTML for a fixed top bar.
+    """
+    selected_page = selected_page or "Daily_Overview"
+    # current_file = __file__.split("/")[-1]
+    current_file = os.path.basename(__file__)
+    custom_top_bar = f"""
+    <style>
+        #top-bar {{
+            padding: 10px;
+            # border-bottom: 1px solid #555;
+            border-bottom: 1px solid #ccc;
+            # color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        #top-bar h3 {{
+            padding: 10px;
+            font-weight: bold;
+            font-size: 24px;
+        }}
+        #nav-links {{
+            display: flex;
+            align-items: center;
+        }}
+        #nav-links a {{            
+            text-decoration: none;
+            margin-right: 20px;
+            font-size: 16px;
+            # font-family: "Source Sans Pro", sans-serif;
+            # font-weight: 400;
+            # transition: color 0.3s ease-in-out;
+        }}
+        #nav-links a:hover {{
+            # color: #00bcd4;
+            color: rgb(255, 75, 75);
+        }}
+    </style>
+    <div id="top-bar">
+        <h3 style="font-weight: bold; color: grey;">Revenue Forecasting</h3>
+        <div id="nav-links">
+            <a style="color: {'red' if selected_page == 'Home' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Home' else 'none'}" href="/Home" target="_self">Home</a>
+            <a style="color: {'red' if selected_page == 'Daily_Overview' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Daily_Overview' else 'none'}" href="/Daily_Overview" target="_self">Daily Overview</a>
+            <a style="color: {'red' if selected_page == 'Revenue_Analysis' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Revenue_Analysis' else 'none'}" href="/Revenue_Analysis" target="_self">Revenue Analysis</a>
+            <a style="color: {'red' if selected_page == 'Report' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Report' else 'none'}" href="/Report" target="_self">Report</a>
+            <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
+            <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
+        </div>
+    </div>
+    """
+    st.markdown(custom_top_bar, unsafe_allow_html=True)
+
+# custom_top_bar()
+set_custom_styles()
+
+url_path = st.experimental_get_query_params().get("pages", [""])[0]
+url_to_page = {
+    "/Home": "Home",
+    "/Daily_Overview": "Daily_Overview",
+    "/Revenue_Analysis": "Revenue_Analysis",
+    "/Report": "Report",
+    "/Prediction": "Prediction",
+    "/upload": "Upload",
+}
+selected_page = url_to_page.get(url_path)
+custom_top_bar(selected_page)
+# --------------------------------------------------
 # MongoDB connection setup
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
@@ -33,6 +131,9 @@ previous_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 # Dropdown options for the second date
 date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday"]
+st.markdown("\n\n")
+st.markdown("\n\n")
+
 st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
 
 date1_default = current_date
@@ -44,11 +145,11 @@ with col2:
     date_option = st.selectbox("Relative to:", date_options)
 
     if date_option == "Previous Date":
-        date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
+        date2 = (date1 - timedelta(days=1)).strftime("%Y-%m-%d")
     elif date_option == "Last Year Same Date":
-        date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
+        date2 = (date1 - timedelta(days=365)).strftime("%Y-%m-%d")
     elif date_option == "Last Year Same Weekday":
-        date2 = (datetime.strptime(current_date, "%Y-%m-%d") - timedelta(weeks=52)).strftime("%Y-%m-%d")
+        date2 = (date1 - timedelta(weeks=52)).strftime("%Y-%m-%d")
 
 # with col2:
     date2 =  datetime.strptime(date2, "%Y-%m-%d")

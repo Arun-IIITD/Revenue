@@ -4,7 +4,10 @@ import datetime
 import plotly.express as px
 import pymongo
 from datetime import datetime
+import os
+
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
+
 def set_custom_styles():
     """
     Custom styles to hide Streamlit default elements and adjust margins.
@@ -51,7 +54,8 @@ def custom_top_bar(selected_page=None):
     Custom HTML for a fixed top bar.
     """
     selected_page = selected_page or "Home"
-    current_file = __file__.split("/")[-1]
+    # current_file = __file__.split("/")[-1]
+    current_file = os.path.basename(__file__)
     custom_top_bar = f"""
     <style>
         #top-bar {{
@@ -67,16 +71,12 @@ def custom_top_bar(selected_page=None):
             padding: 10px;
             font-weight: bold;
             font-size: 24px;
-            color: {'red' if current_file == 'Home.py' else 'grey'};
-            border-bottom: {'2px solid red' if current_file == 'Home.py' else 'none'};
         }}
         #nav-links {{
             display: flex;
             align-items: center;
         }}
-        #nav-links a {{
-            # color: black;
-            color: #333;
+        #nav-links a {{            
             text-decoration: none;
             margin-right: 20px;
             font-size: 16px;
@@ -115,7 +115,7 @@ url_to_page = {
     "/Prediction": "Prediction",
     "/upload": "Upload",
 }
-selected_page = url_to_page.get(url_path, "Home")
+selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)
 # -----------------------------------------------
 def m():

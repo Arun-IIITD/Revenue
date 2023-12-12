@@ -306,14 +306,50 @@ def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenu
     st.plotly_chart(fig)
 # ---------------------------------------------------------------------
 def main():
-    st.subheader('Revenue Prophet')
+    st.markdown(
+        """
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .button-section {
+            text-align: center;
+        }
+        .download-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.subheader("Predicted vs Actual Revenue")
     col1, col2 = st.columns(2)
     
     # Plot for 0-7 Days
     with col1:
         df_7_days = pd.DataFrame({'Date': test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
         # fig_7_days = px.line(df_7_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 0-7 Days')
-        plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'Predicted vs Actual Revenue for 0-7 Days')
+        plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-7 Days')
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
         st.markdown("---")
@@ -325,11 +361,11 @@ def main():
             'Accuracy_of_revenue': Accuracy_for_7_days,
         })
     # Plot for 8-14 Days
-    with col1:
+    with col2:
         df_14_days = pd.DataFrame({'Date': next_14_days['ds'].tail(7), 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
         # fig_14_days = px.line(df_14_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 8-14 Days')
         # st.plotly_chart(fig_14_days)
-        plot_revenue(df_14_days['Date'], df_14_days['Actual'], df_14_days['Date'], df_14_days['Predicted'], 'Predicted vs Actual Revenue for 8-14 Days')
+        plot_revenue(df_14_days['Date'], df_14_days['Actual'], df_14_days['Date'], df_14_days['Predicted'], 'For 8-14 Days')
         st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
         st.markdown("---")
         revenue_df_14_days = pd.DataFrame({
@@ -339,11 +375,11 @@ def main():
             'Accuracy_of_revenue': Accuracy_for_14_days,
         })
     # Plot for 15-21 Days
-    with col2:
+    with col1:
         df_21_days = pd.DataFrame({'Date': next_21_days['ds'].tail(7), 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
         # fig_21_days = px.line(df_21_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 15-21 Days')
         # st.plotly_chart(fig_21_days)
-        plot_revenue(df_21_days['Date'], df_21_days['Actual'], df_21_days['Date'], df_21_days['Predicted'], 'Predicted vs Actual Revenue for 15-21 Days')
+        plot_revenue(df_21_days['Date'], df_21_days['Actual'], df_21_days['Date'], df_21_days['Predicted'], 'For 15-21 Days')
 
         st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
         st.markdown("---")

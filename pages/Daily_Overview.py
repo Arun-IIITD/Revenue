@@ -126,21 +126,26 @@ database_name = "Revenue_Forecasting"
 db = client[database_name]
 collection = db["Forecastin"]
 
-current_date = datetime.now().strftime("%Y-%m-%d")
+last_business_date_result = collection.find({}, {"Business Date": 1}).sort("Business Date", pymongo.DESCENDING).limit(1)
+last_business_date = last_business_date_result[0]["Business Date"] if collection.count_documents({}) > 0 else datetime.now().strftime("%Y-%m-%d")
+
+# current_date = datetime.now().strftime("%Y-%m-%d")
 previous_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 # Dropdown options for the second date
 date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday"]
 st.markdown("\n\n")
 st.markdown("\n\n")
+st.markdown("\n\n")
 
 st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
 
-date1_default = current_date
+date1_default = last_business_date
+# date1_default = current_date
 date2_default = previous_date
 col1, col2 = st.columns(2)
 with col1:
-    date1 = st.date_input("Select Date:", datetime.strptime(current_date, "%Y-%m-%d"))
+    date1 = st.date_input("Select Date:", datetime.strptime(date1_default, "%Y-%m-%d"))
 with col2:
     date_option = st.selectbox("Relative to:", date_options)
 

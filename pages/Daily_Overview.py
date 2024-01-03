@@ -134,8 +134,8 @@ previous_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 # Dropdown options for the second date
 date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday"]
-st.markdown("\n\n")
-st.markdown("\n\n")
+# st.markdown("\n\n")
+# st.markdown("\n\n")
 st.markdown("\n\n")
 
 st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
@@ -145,7 +145,18 @@ date1_default = last_business_date
 date2_default = previous_date
 col1, col2 = st.columns(2)
 with col1:
-    date1 = st.date_input("Select Date:", datetime.strptime(date1_default, "%Y-%m-%d"))
+    date1 = st.date_input("Select Date:", datetime.strptime(date1_default, "%Y-%m-%d"), key="date_input_id")
+    st.markdown(
+    f"""
+    <style>
+        #{date1} {{
+            position: absolute;
+            bottom: 0;
+        }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 with col2:
     date_option = st.selectbox("Relative to:", date_options)
 

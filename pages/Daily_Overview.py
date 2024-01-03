@@ -136,7 +136,7 @@ previous_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 date_options = ["Previous Date", "Last Year Same Date", "Last Year Same Weekday"]
 # st.markdown("\n\n")
 # st.markdown("\n\n")
-st.markdown("\n\n")
+# st.markdown("\n\n")
 
 st.markdown("<div class='section-title'>Daily Overview</div>", unsafe_allow_html=True)
 

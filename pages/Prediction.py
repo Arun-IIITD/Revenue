@@ -237,6 +237,29 @@ for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
     c= int(c)
     Accuracy_for_21_days.append(c)
 
+# Convert to datetime and extract year and month
+data5['ds'] = pd.to_datetime(data5['ds'])
+data5['Year'] = data5['ds'].dt.year
+data5['Month'] = data5['ds'].dt.strftime('%B')  # Month in full name
+
+# Set a custom order for months
+month_order = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+]
+
+data5['Month'] = pd.Categorical(data5['Month'], categories=month_order, ordered=True)
+
+# Separate data for each year
+data_2022 = data5[data5['Year'] == 2022]
+data_2023 = data5[data5['Year'] == 2023]
+
+# Group by month and sum the revenues for each year
+monthly_total_revenue_2022 = data_2022.groupby('Month')['y'].sum().reset_index()
+monthly_total_revenue_2023 = data_2023.groupby('Month')['y'].sum().reset_index()
+
+# Merge the data for 2022 and 2023
+merged_data = pd.merge(monthly_total_revenue_2022, monthly_total_revenue_2023, on='Month', suffixes=('_2022', '_2023'))
+
 sensitivity_values_for_7_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_7_days, Predicted_for_7_days)]
 sensitivity_values_for_14_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_14_days, Predicted_for_14_days)]
 sensitivity_values_for_21_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_21_days, Predicted_for_21_days)]
@@ -309,6 +332,47 @@ def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenu
     # Show the plot
     st.plotly_chart(fig)
 # ---------------------------------------------------------------------
+
+def plot_month_data():
+    # Plotting using Plotly
+    fig = go.Figure()
+    
+    # Plotting bars for 2022
+    fig.add_trace(go.Bar(
+    x=merged_data['Month'],
+    y=merged_data['y_2022'],
+    name='2022',
+    marker_color='skyblue'
+    ))
+    
+    # Plotting bars for 2023
+    fig.add_trace(go.Bar(
+    x=merged_data['Month'],
+    y=merged_data['y_2023'],
+    name='2023',
+    marker_color='orange'
+    ))
+    
+    # Update layout for better interactivity
+    fig.update_layout(
+    barmode='group',  # Display bars in groups
+    title='Total Revenue for Each Month (2022-2023)',
+    xaxis=dict(title='Month'),
+    yaxis=dict(title='Total Revenue in Crore'),
+    hovermode='x',
+    showlegend=True,
+    legend_title='Legend',
+    font=dict(family='Arial', size=14),
+    height=600,  # Adjust the height of the plot
+    width=1000,   # Adjust the width of the plot
+    margin=dict(l=20, r=20, t=40, b=20),
+    )
+    
+    # Show the plot
+    st.plotly_chart(fig)
+
+
+    
 def main():
     st.markdown(
         """
@@ -398,6 +462,13 @@ def main():
             'Predicted_Revenue': Predicted_for_21_days,
             'Accuracy_of_revenue': Accuracy_for_21_days,
         })
+
+    #for MONTHLY
+    with col1:
+        plot_month_data()
+    
+
+    
     st.subheader('Download Excel Files')
 
     # Download links for Excel files

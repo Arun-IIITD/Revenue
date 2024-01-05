@@ -356,7 +356,7 @@ def main():
         plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-07 Days')
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {round(mean(sensitivity_values_for_7_days)),2}%")
+        st.write(f"Sensitivity: {round(mean(sensitivity_values_for_7_days),2)}%")
         
         
         st.markdown("---")
@@ -390,7 +390,7 @@ def main():
         plot_revenue(df_21_days['Date'], df_21_days['Actual'], df_21_days['Date'], df_21_days['Predicted'], 'For 15-21 Days')
 
         st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {round(mean(sensitivity_values_for_21_days)),2}%")
+        st.write(f"Sensitivity: {round(mean(sensitivity_values_for_21_days),2)}%")
         st.markdown("---")
         revenue_df_21_days = pd.DataFrame({
             'Date': next_21_days['ds'].tail(7),

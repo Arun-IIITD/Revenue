@@ -277,7 +277,7 @@ def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenu
     fig.update_layout(
         title=title,
         xaxis=dict(title='Date'),
-        yaxis=dict(title='Revenue (in Lakhs)', range=[0, max(max(actual_revenue), max(predicted_revenue)) + 100]),
+        yaxis=dict(title='Revenue (in Lakhs)', range=[0, 20,1]),
         hovermode='x',
         showlegend=False,  # Hide legend for cleaner appearance
         legend_title='Legend',

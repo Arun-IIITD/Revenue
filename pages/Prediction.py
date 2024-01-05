@@ -349,7 +349,7 @@ def main():
     with col1:
         df_7_days = pd.DataFrame({'Date': test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
         # fig_7_days = px.line(df_7_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 0-7 Days')
-        plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-7 Days')
+        plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-07 Days')
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
         st.markdown("---")

@@ -297,7 +297,7 @@ def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenu
                 yref='paper'
             ),
         ],
-        height=400,  # Adjust the height of the plot
+        height=530,  # Adjust the height of the plot
         width=530,   # Adjust the width of the plot
         margin=dict(l=20, r=20, t=40, b=20),
     )

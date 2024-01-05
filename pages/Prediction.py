@@ -237,6 +237,10 @@ for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
     c= int(c)
     Accuracy_for_21_days.append(c)
 
+sensitivity_values_for_7_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_7_days, Predicted_for_7_days)]
+sensitivity_values_for_14_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_14_days, Predicted_for_14_days)]
+sensitivity_values_for_21_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_21_days, Predicted_for_21_days)]
+
 def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenue, title):
     fig = go.Figure()
 
@@ -352,6 +356,8 @@ def main():
         plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-07 Days')
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
+        st.write(f"Sensitivity: {mean(sensitivity_values_for_7_days)}%")
+        
         st.markdown("---")
         #Conversion of dfs into excel files
         revenue_df_7_days = pd.DataFrame({

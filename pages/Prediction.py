@@ -399,7 +399,7 @@ def main():
             revenue_df_21_days.to_excel(writer, sheet_name='revenue_data_21_days', index=False)
         buffer.seek(0)
 
-        st.markdown(get_excel_download_link(buffer, 'revenue_data_7_days.xlsx', 'Download revenue_data_7_days.xlsx'), unsafe_allow_html=True)
+        st.markdown(get_excel_download_link(buffer, 'revenue_data_7_days.xlsx', 'Download revenue_data_07_days.xlsx'), unsafe_allow_html=True)
         st.markdown(get_excel_download_link(buffer, 'revenue_data_14_days.xlsx', 'Download revenue_data_14_days.xlsx'), unsafe_allow_html=True)
         st.markdown(get_excel_download_link(buffer, 'revenue_data_21_days.xlsx', 'Download revenue_data_21_days.xlsx'), unsafe_allow_html=True)
 

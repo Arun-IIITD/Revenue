@@ -264,6 +264,13 @@ sensitivity_values_for_7_days = [tp / 7 for tp, fn in zip(Actual_for_7_days, Pre
 sensitivity_values_for_14_days = [tp /7 for tp, fn in zip(Actual_for_14_days, Predicted_for_14_days)]
 sensitivity_values_for_21_days = [tp / 7 for tp, fn in zip(Actual_for_21_days, Predicted_for_21_days)]
 
+absolute_diff1 = np.abs(np.array(Predicted_for_7_days) - np.array(Actual_for_7_days))
+mae1 = np.mean(absolute_diff1)
+absolute_diff2 = np.abs(np.array(Predicted_for_14_days) - np.array(Actual_for_14_days))
+mae2 = np.mean(absolute_diff2)
+absolute_diff3 = np.abs(np.array(Predicted_for_21_days) - np.array(Actual_for_21_days))
+mae3 = np.mean(absolute_diff3)
+
 def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenue, title):
     fig = go.Figure()
 
@@ -421,6 +428,7 @@ def main():
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
         st.write(f"Sensitivity: {round(mean(sensitivity_values_for_7_days))}")
+        st.write(f"MAE: mae1")
         
         
         st.markdown("---")
@@ -439,6 +447,7 @@ def main():
         plot_revenue(df_14_days['Date'], df_14_days['Actual'], df_14_days['Date'], df_14_days['Predicted'], 'For 8-14 Days')
         st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
         st.write(f"Sensitivity: {round(mean(sensitivity_values_for_14_days))}")
+         st.write(f"MAE: mae2")
         st.markdown("---")
         revenue_df_14_days = pd.DataFrame({
             'Date': next_14_days['ds'].tail(7),
@@ -455,6 +464,7 @@ def main():
 
         st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
         st.write(f"Sensitivity: {round(mean(sensitivity_values_for_21_days))}")
+         st.write(f"MAE: mae3")
         st.markdown("---")
         revenue_df_21_days = pd.DataFrame({
             'Date': next_21_days['ds'].tail(7),

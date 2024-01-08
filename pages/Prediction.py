@@ -464,7 +464,7 @@ def main():
 
         st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
         st.write(f"Sensitivity: {round(mean(sensitivity_values_for_21_days))}")
-         st.write(f"MAE: {mae3}")
+        st.write(f"MAE: {mae3}")
         st.markdown("---")
         revenue_df_21_days = pd.DataFrame({
             'Date': next_21_days['ds'].tail(7),

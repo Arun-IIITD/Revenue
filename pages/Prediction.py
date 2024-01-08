@@ -428,7 +428,7 @@ def main():
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
         st.write(f"Sensitivity: {round(mean(sensitivity_values_for_7_days))}")
-        st.write(f"MAE: mae1")
+        st.write("MAE:", mae1)
         
         
         st.markdown("---")

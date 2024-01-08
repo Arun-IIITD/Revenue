@@ -260,9 +260,9 @@ monthly_total_revenue_2023 = data_2023.groupby('Month')['y'].sum().reset_index()
 # Merge the data for 2022 and 2023
 merged_data = pd.merge(monthly_total_revenue_2022, monthly_total_revenue_2023, on='Month', suffixes=('_2022', '_2023'))
 
-sensitivity_values_for_7_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_7_days, Predicted_for_7_days)]
-sensitivity_values_for_14_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_14_days, Predicted_for_14_days)]
-sensitivity_values_for_21_days = [tp / (tp + fn) for tp, fn in zip(Actual_for_21_days, Predicted_for_21_days)]
+sensitivity_values_for_7_days = [tp / 7 for tp, fn in zip(Actual_for_7_days, Predicted_for_7_days)]
+sensitivity_values_for_14_days = [tp / 7 for tp, fn in zip(Actual_for_14_days, Predicted_for_14_days)]
+sensitivity_values_for_21_days = [tp / 7 for tp, fn in zip(Actual_for_21_days, Predicted_for_21_days)]
 
 def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenue, title):
     fig = go.Figure()
@@ -420,7 +420,7 @@ def main():
         plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-07 Days')
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {round(mean(sensitivity_values_for_7_days),3)}%")
+        st.write(f"Sensitivity: {(mean(sensitivity_values_for_7_days))}%")
         
         
         st.markdown("---")
@@ -438,7 +438,7 @@ def main():
         # st.plotly_chart(fig_14_days)
         plot_revenue(df_14_days['Date'], df_14_days['Actual'], df_14_days['Date'], df_14_days['Predicted'], 'For 8-14 Days')
         st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {round(mean(sensitivity_values_for_14_days),3)}%")
+        st.write(f"Sensitivity: {(mean(sensitivity_values_for_14_days))}%")
         st.markdown("---")
         revenue_df_14_days = pd.DataFrame({
             'Date': next_14_days['ds'].tail(7),
@@ -454,7 +454,7 @@ def main():
         plot_revenue(df_21_days['Date'], df_21_days['Actual'], df_21_days['Date'], df_21_days['Predicted'], 'For 15-21 Days')
 
         st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {round(mean(sensitivity_values_for_21_days),3)}%")
+        st.write(f"Sensitivity: {(mean(sensitivity_values_for_21_days))}%")
         st.markdown("---")
         revenue_df_21_days = pd.DataFrame({
             'Date': next_21_days['ds'].tail(7),

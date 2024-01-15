@@ -176,7 +176,7 @@ for i,j in zip(Actual_for_7_days,Predicted_for_7_days):
     c = c*100/i
     c  = 100-c
     c= int(c)
-    if c >90:
+    if c > 90:
             tp_for_7_days+=1
     else:
             fn_for_7_days+=1
@@ -443,7 +443,7 @@ def main():
         plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-07 Days')
         # st.plotly_chart(fig_7_days)
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}")
+        st.write(f"Sensitivity: {sensitivity_values_for_7_days}")
         st.write(f"MAE: {round(mae1)}")
         
         
@@ -462,7 +462,7 @@ def main():
         # st.plotly_chart(fig_14_days)
         plot_revenue(df_14_days['Date'], df_14_days['Actual'], df_14_days['Date'], df_14_days['Predicted'], 'For 8-14 Days')
         st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}")
+        st.write(f"Sensitivity: {sensitivity_values_for_14_days}")
         st.write(f"MAE: {round(mae2)}")
         st.markdown("---")
         revenue_df_14_days = pd.DataFrame({
@@ -479,7 +479,7 @@ def main():
         plot_revenue(df_21_days['Date'], df_21_days['Actual'], df_21_days['Date'], df_21_days['Predicted'], 'For 15-21 Days')
 
         st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}")
+        st.write(f"Sensitivity: {sensitivity_values_for_21_days}")
         st.write(f"MAE: {round(mae3)}")
         st.markdown("---")
         revenue_df_21_days = pd.DataFrame({

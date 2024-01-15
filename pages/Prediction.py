@@ -169,11 +169,18 @@ for i,j in zip(list(test_data_for_next_7_days['y'].tail(7)),list(next_7_days['yh
     Actual_for_7_days.append(i)
     Predicted_for_7_days.append(j)
 
+tp_for_7_days = 0
+fn_for_7_days = 0
 for i,j in zip(Actual_for_7_days,Predicted_for_7_days):
     c = abs(i-j)
     c = c*100/i
     c  = 100-c
     c= int(c)
+    if c >90:
+            tp_for_7_days+=1
+    else:
+            fn_for_7_days+=1
+    Accuracy_for_7_days.append(c)
     Accuracy_for_7_days.append(c)
 
 #FOR next 7 DAYS (8-14)
@@ -199,12 +206,17 @@ for i,j in zip(list(test_data_for_next_14_days['y'].tail(7)),list(next_14_days['
     j = int(j)
     Actual_for_14_days.append(i)
     Predicted_for_14_days.append(j)
-
+tp_for_14_days = 0
+fn_for_14_days = 0
 for i,j in zip(Actual_for_14_days,Predicted_for_14_days):
     c = abs(i-j)
     c = c*100/i
     c  = 100-c
     c= int(c)
+    if c >90:
+        tp_for_14_days += 1
+    else:
+        fn_for_14_days+=1
     Accuracy_for_14_days.append(c)
 
 # For the next 7 days(15-21 days)
@@ -229,12 +241,17 @@ for i,j in zip(list(test_data_for_next_21_days['y'].tail(7)),list(next_21_days['
     j = int(j)
     Actual_for_21_days.append(i)
     Predicted_for_21_days.append(j)
-
+tp_for_21_days = 0
+fn_for_21_days = 0
 for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
     c = abs(i-j)
     c = c*100/i
     c  = 100-c
     c= int(c)
+    if c >90:
+        tp_for_21_days +=1
+    else:
+        fn_for_21_days+=1
     Accuracy_for_21_days.append(c)
 
 # Convert to datetime and extract year and month
@@ -260,9 +277,9 @@ monthly_total_revenue_2023 = data_2023.groupby('Month')['y'].sum().reset_index()
 # Merge the data for 2022 and 2023
 merged_data = pd.merge(monthly_total_revenue_2022, monthly_total_revenue_2023, on='Month', suffixes=('_2022', '_2023'))
 
-sensitivity_values_for_7_days = [tp / (tp+fn) for tp, fn in zip(Actual_for_7_days, Predicted_for_7_days)]
-sensitivity_values_for_14_days = [tp /(tp+fn) for tp, fn in zip(Actual_for_14_days, Predicted_for_14_days)]
-sensitivity_values_for_21_days = [tp / (tp+fn) for tp, fn in zip(Actual_for_21_days, Predicted_for_21_days)]
+sensitivity_values_for_7_days = tp_for_7_days/(tp_for_7_days + fn_for_7_days)
+sensitivity_values_for_14_days = tp_for_14_days/(tp_for_14_days + fn_for_14_days)
+sensitivity_values_for_21_days = tp_for_21_days/(tp_for_21_days + fn_for_21_days)
 
 absolute_diff1 = np.abs(np.array(Predicted_for_7_days) - np.array(Actual_for_7_days))
 mae1 = np.mean(absolute_diff1)

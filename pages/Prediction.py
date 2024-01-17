@@ -521,7 +521,7 @@ def main():
         #     'Actual_Revenue': Actual_for_7_days,
         #     'Predicted_Revenue': Predicted_for_7_days,
         #     'Accuracy_of_revenue': Accuracy_for_7_days,
-        })
+        #})
     # Plot for 8-14 Days
     with col2:
         df_14_days = pd.DataFrame({'Date': next_14_days['ds'].tail(7), 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})

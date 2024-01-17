@@ -556,7 +556,7 @@ for i,j in zip(list(test_data_for_next_7_days_room_sales['y'].tail(10)),list(nex
     Actual_for_7_days_room_sales.append(i)
     Predicted_for_7_days_room_sales.append(j)
 
-for i,j in zip(Actual_for_7_days_room_sales,Predicted_for_7_days_sales):
+for i,j in zip(Actual_for_7_days_room_sales,Predicted_for_7_days_room_sales):
     c = abs(i-j)
     c = (c*100)/i
     c  = 100-c

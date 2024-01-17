@@ -407,7 +407,7 @@ test_data_for_next_21_days_room_sales = data6.iloc[253:260]
 data6['ds'] = pd.to_datetime(data6['ds'])
 
 # Room sold for first 7 days(0-7)
-model = Prophet(
+model4 = Prophet(
                         changepoint_prior_scale= 0.9,
                         #holidays_prior_scale = 0.4,
                         #n_changepoints = 200,
@@ -416,9 +416,9 @@ model = Prophet(
                         daily_seasonality = True,
                         yearly_seasonality = False,
                 )
-model.fit(train_data_room_sales)
-future_for_7_days_room_sales = model.make_future_dataframe(periods=7, freq='D', include_history=False)
-forecast = model.predict(future_for_7_days_room_sales)
+model4.fit(train_data_room_sales)
+future_for_7_days_room_sales = model4.make_future_dataframe(periods=7, freq='D', include_history=False)
+forecast = model4.predict(future_for_7_days_room_sales)
 next_7_days_room_sales = forecast.tail(7)
 Actual_for_7_days_room_sales =  []
 Predicted_for_7_days_room_sales = []

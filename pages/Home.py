@@ -98,7 +98,7 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Report' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Report' else 'none'}" href="/Report" target="_self">Report</a>
             <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
-            <a style="color: {'red' if selected_page == 'Room_sales' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Room_sales' else 'none'}" href="/Room_sales" target="_self">Room_sales</a>
+            
         </div>
     </div>
     """

@@ -395,133 +395,6 @@ def plot_month_data():
     # Show the plot
     st.plotly_chart(fig)
 
-
-    
-def main():
-    st.markdown(
-        """
-        <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .input-section {
-            margin-bottom: 20px;
-        }
-        .button-section {
-            text-align: center;
-        }
-        .download-section {
-            margin-top: 20px;
-            text-align: center;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.subheader("Predicted vs Actual Revenue")
-    col1, col2 = st.columns(2)
-    
-    # Plot for 0-7 Days
-    with col1:
-        df_7_days = pd.DataFrame({'Date': test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-        # fig_7_days = px.line(df_7_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 0-7 Days')
-        plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-07 Days')
-        # st.plotly_chart(fig_7_days)
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {round(sensitivity_values_for_7_days,3)}")
-        st.write(f"MAE: {round(mae1)}")
-
-        df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
-        plot_revenue(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
-        
-        
-        st.markdown("---")
-        #Conversion of dfs into excel files
-        revenue_df_7_days = pd.DataFrame({
-            'Date': test_data_for_next_7_days['ds'].tail(7),
-            'Actual_Revenue': Actual_for_7_days,
-            'Predicted_Revenue': Predicted_for_7_days,
-            'Accuracy_of_revenue': Accuracy_for_7_days,
-        })
-    # Plot for 8-14 Days
-    with col2:
-        df_14_days = pd.DataFrame({'Date': next_14_days['ds'].tail(7), 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-        # fig_14_days = px.line(df_14_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 8-14 Days')
-        # st.plotly_chart(fig_14_days)
-        plot_revenue(df_14_days['Date'], df_14_days['Actual'], df_14_days['Date'], df_14_days['Predicted'], 'For 8-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {round(sensitivity_values_for_14_days,3)}")
-        st.write(f"MAE: {round(mae2)}")
-        st.markdown("---")
-        revenue_df_14_days = pd.DataFrame({
-            'Date': next_14_days['ds'].tail(7),
-            'Actual_Revenue': Actual_for_14_days,
-            'Predicted_Revenue': Predicted_for_14_days,
-            'Accuracy_of_revenue': Accuracy_for_14_days,
-        })
-    # Plot for 15-21 Days
-    with col1:
-        df_21_days = pd.DataFrame({'Date': next_21_days['ds'].tail(7), 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-        # fig_21_days = px.line(df_21_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 15-21 Days')
-        # st.plotly_chart(fig_21_days)
-        plot_revenue(df_21_days['Date'], df_21_days['Actual'], df_21_days['Date'], df_21_days['Predicted'], 'For 15-21 Days')
-
-        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {round(sensitivity_values_for_21_days,3)}")
-        st.write(f"MAE: {round(mae3)}")
-        st.markdown("---")
-        revenue_df_21_days = pd.DataFrame({
-            'Date': next_21_days['ds'].tail(7),
-            'Actual_Revenue': Actual_for_21_days,
-            'Predicted_Revenue': Predicted_for_21_days,
-            'Accuracy_of_revenue': Accuracy_for_21_days,
-        })
-
-    #for MONTHLY
-    with col1:
-        plot_month_data()
-    
-
-    
-    st.subheader('Download Excel Files')
-
-    # Download links for Excel files
-    with BytesIO() as buffer:
-        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-            revenue_df_7_days.to_excel(writer, sheet_name='revenue_data_7_days', index=False)
-            revenue_df_14_days.to_excel(writer, sheet_name='revenue_data_14_days', index=False)
-            revenue_df_21_days.to_excel(writer, sheet_name='revenue_data_21_days', index=False)
-        buffer.seek(0)
-
-        st.markdown(get_excel_download_link(buffer, 'revenue_data_7_days.xlsx', 'Download revenue_data_07_days.xlsx'), unsafe_allow_html=True)
-        st.markdown(get_excel_download_link(buffer, 'revenue_data_14_days.xlsx', 'Download revenue_data_14_days.xlsx'), unsafe_allow_html=True)
-        st.markdown(get_excel_download_link(buffer, 'revenue_data_21_days.xlsx', 'Download revenue_data_21_days.xlsx'), unsafe_allow_html=True)
-
-# Function to generate a download link for the Excel file
-def get_excel_download_link(buffer, file_name, link_text):
-    buffer = buffer.read()
-    b64 = base64.b64encode(buffer).decode()
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}">{link_text}</a>'
-    return href
-
-# ----------------------------------------------- 
 collection6 = db["accuracy_room_sold"]
 cursor6 = collection6.find({})
 data6 = pd.DataFrame(list(cursor6))
@@ -585,6 +458,138 @@ monthly_total_room_sales_2023 = data_2023.groupby('Month')['y'].sum().reset_inde
 
 # Merge the data for 2022 and 2023
 merged_data_room_sales = pd.merge(monthly_total_room_sales_2022, monthly_total_room_sales_2023, on='Month', suffixes=('_2022', '_2023'))
+    
+def main():
+    st.markdown(
+        """
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .button-section {
+            text-align: center;
+        }
+        .download-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.subheader("Predicted vs Actual Revenue")
+    col1, col2 = st.columns(2)
+    
+    # Plot for 0-7 Days
+    with col1:
+        df_7_days = pd.DataFrame({'Date': test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
+        # fig_7_days = px.line(df_7_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 0-7 Days')
+        plot_revenue(df_7_days['Date'], df_7_days['Actual'], df_7_days['Date'], df_7_days['Predicted'], 'For 0-07 Days')
+        # st.plotly_chart(fig_7_days)
+        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
+        st.write(f"Sensitivity: {round(sensitivity_values_for_7_days,3)}")
+        st.write(f"MAE: {round(mae1)}")
+
+        df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
+        plot_revenue(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
+        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
+        
+        
+        st.markdown("---")
+        # #Conversion of dfs into excel files
+        # revenue_df_7_days = pd.DataFrame({
+        #     'Date': test_data_for_next_7_days['ds'].tail(7),
+        #     'Actual_Revenue': Actual_for_7_days,
+        #     'Predicted_Revenue': Predicted_for_7_days,
+        #     'Accuracy_of_revenue': Accuracy_for_7_days,
+        })
+    # Plot for 8-14 Days
+    with col2:
+        df_14_days = pd.DataFrame({'Date': next_14_days['ds'].tail(7), 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
+        # fig_14_days = px.line(df_14_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 8-14 Days')
+        # st.plotly_chart(fig_14_days)
+        plot_revenue(df_14_days['Date'], df_14_days['Actual'], df_14_days['Date'], df_14_days['Predicted'], 'For 8-14 Days')
+        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
+        st.write(f"Sensitivity: {round(sensitivity_values_for_14_days,3)}")
+        st.write(f"MAE: {round(mae2)}")
+        st.markdown("---")
+        # revenue_df_14_days = pd.DataFrame({
+        #     'Date': next_14_days['ds'].tail(7),
+        #     'Actual_Revenue': Actual_for_14_days,
+        #     'Predicted_Revenue': Predicted_for_14_days,
+        #     'Accuracy_of_revenue': Accuracy_for_14_days,
+        # })
+    # Plot for 15-21 Days
+    with col1:
+        df_21_days = pd.DataFrame({'Date': next_21_days['ds'].tail(7), 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
+        # fig_21_days = px.line(df_21_days, x='Date', y=['Actual', 'Predicted'], title='Predicted vs Actual Revenue for 15-21 Days')
+        # st.plotly_chart(fig_21_days)
+        plot_revenue(df_21_days['Date'], df_21_days['Actual'], df_21_days['Date'], df_21_days['Predicted'], 'For 15-21 Days')
+
+        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
+        st.write(f"Sensitivity: {round(sensitivity_values_for_21_days,3)}")
+        st.write(f"MAE: {round(mae3)}")
+        st.markdown("---")
+        # revenue_df_21_days = pd.DataFrame({
+        #     'Date': next_21_days['ds'].tail(7),
+        #     'Actual_Revenue': Actual_for_21_days,
+        #     'Predicted_Revenue': Predicted_for_21_days,
+        #     'Accuracy_of_revenue': Accuracy_for_21_days,
+        # })
+
+    #for MONTHLY
+    with col1:
+        plot_month_data()
+
+    with col1:
+        df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
+        plot_revenue(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
+        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
+    
+
+    
+    # st.subheader('Download Excel Files')
+
+#     # Download links for Excel files
+#     with BytesIO() as buffer:
+#         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+#             revenue_df_7_days.to_excel(writer, sheet_name='revenue_data_7_days', index=False)
+#             revenue_df_14_days.to_excel(writer, sheet_name='revenue_data_14_days', index=False)
+#             revenue_df_21_days.to_excel(writer, sheet_name='revenue_data_21_days', index=False)
+#         buffer.seek(0)
+
+#         st.markdown(get_excel_download_link(buffer, 'revenue_data_7_days.xlsx', 'Download revenue_data_07_days.xlsx'), unsafe_allow_html=True)
+#         st.markdown(get_excel_download_link(buffer, 'revenue_data_14_days.xlsx', 'Download revenue_data_14_days.xlsx'), unsafe_allow_html=True)
+#         st.markdown(get_excel_download_link(buffer, 'revenue_data_21_days.xlsx', 'Download revenue_data_21_days.xlsx'), unsafe_allow_html=True)
+
+# # Function to generate a download link for the Excel file
+# def get_excel_download_link(buffer, file_name, link_text):
+#     buffer = buffer.read()
+#     b64 = base64.b64encode(buffer).decode()
+#     href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}">{link_text}</a>'
+#     return href
+
+# ----------------------------------------------- 
+
 
 
 

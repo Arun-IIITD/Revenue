@@ -509,9 +509,6 @@ def main():
         st.write(f"Sensitivity: {round(sensitivity_values_for_7_days,3)}")
         st.write(f"MAE: {round(mae1)}")
 
-        df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
-        plot_revenue(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
         
         
         st.markdown("---")

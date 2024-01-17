@@ -594,29 +594,29 @@ for i,j in zip(Actual_for_14_days,Predicted_for_14_days):
     Accuracy_for_14_days.append(c)
 
 #ROOM SOLD FOR FOR 21 DAYS(15-21 days)
-model2 = Prophet(
-                        changepoint_prior_scale=0.3,  # Tweak this parameter based on your data
-                        yearly_seasonality=False,       # Add yearly seasonality
-                        weekly_seasonality=True, )
-model2.fit(train_data)
-future_for_21_days = model2.make_future_dataframe(periods=21, freq='D', include_history=False)
-forecast2 = model2.predict(future_for_21_days)
-next_21_days = forecast2.tail(7)
-Actual_for_21_days =  []
-Predicted_for_21_days = []
-Accuracy_for_21_days = []
-for i,j in zip(list(test_data_for_next_21_days['y'].tail(7)),list(next_21_days['yhat'])):
-    i= int(i)
-    j = int(j)
-    Actual_for_21_days.append(i)
-    Predicted_for_21_days.append(j)
+# model2 = Prophet(
+#                         changepoint_prior_scale=0.3,  # Tweak this parameter based on your data
+#                         yearly_seasonality=False,       # Add yearly seasonality
+#                         weekly_seasonality=True, )
+# model2.fit(train_data)
+# future_for_21_days = model2.make_future_dataframe(periods=21, freq='D', include_history=False)
+# forecast2 = model2.predict(future_for_21_days)
+# next_21_days = forecast2.tail(7)
+# Actual_for_21_days =  []
+# Predicted_for_21_days = []
+# Accuracy_for_21_days = []
+# for i,j in zip(list(test_data_for_next_21_days['y'].tail(7)),list(next_21_days['yhat'])):
+#     i= int(i)
+#     j = int(j)
+#     Actual_for_21_days.append(i)
+#     Predicted_for_21_days.append(j)
 
-for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
-    c = abs(i-j)
-    c = c*100/i
-    c  = 100-c
-    c= int(c)
-    Accuracy_for_21_days.append(c)
+# for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
+#     c = abs(i-j)
+#     c = c*100/i
+#     c  = 100-c
+#     c= int(c)
+#     Accuracy_for_21_days.append(c)
 st.write("room_sales")
 
 

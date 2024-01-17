@@ -17,6 +17,7 @@ from io import BytesIO
 import plotly.graph_objects as go
 import base64
 
+
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
 
 
@@ -515,6 +516,109 @@ def get_excel_download_link(buffer, file_name, link_text):
     b64 = base64.b64encode(buffer).decode()
     href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}">{link_text}</a>'
     return href
+
+# ----------------------------------------------- 
+collection6 = db["accuracy_room_sold"]
+cursor6 = collection6.find({})
+data6 = pd.DataFrame(list(cursor6))
+data6  = data6[['Date', 'Rooms Sold']]
+data6.columns = ['ds','y']
+train_data = data6.iloc[:237]
+test_data_for_next_7_days = data6.iloc[237:244]
+test_data_for_next_14_days = data6.iloc[245:252]
+test_data_for_next_21_days = data6.iloc[253:260]
+data6['ds'] = pd.to_datetime(data6['ds'])
+
+# Room sold for first 7 days(0-7)
+model = Prophet(
+                        changepoint_prior_scale= 0.9,
+                        #holidays_prior_scale = 0.4,
+                        #n_changepoints = 200,
+                        #seasonality_mode = 'multiplicative',
+                        weekly_seasonality=True,
+                        daily_seasonality = True,
+                        yearly_seasonality = False,
+                )
+model.fit(train_data)
+future_for_7_days = model.make_future_dataframe(periods=7, freq='D', include_history=False)
+forecast = model.predict(future_for_7_days)
+next_7_days = forecast.tail(7)
+Actual_for_7_days =  []
+Predicted_for_7_days = []
+Accuracy_for_7_days = []
+for i,j in zip(list(test_data_for_next_7_days['y'].tail(10)),list(next_7_days['yhat'])):
+    i= int(i)
+    j = int(j)
+    Actual_for_7_days.append(i)
+    Predicted_for_7_days.append(j)
+
+for i,j in zip(Actual_for_7_days,Predicted_for_7_days):
+    c = abs(i-j)
+    c = (c*100)/i
+    c  = 100-c
+    c= int(c)
+    Accuracy_for_7_days.append(c)
+
+
+
+
+#ROOM SOLD FOR next 7 days(8-14)
+model1 = Prophet(changepoint_prior_scale=0.9,
+                holidays_prior_scale = 0.4,
+                #n_changepoints = 200,
+                seasonality_mode = 'multiplicative',
+                weekly_seasonality=True,
+                daily_seasonality = True,
+                yearly_seasonality = False,
+                interval_width=0.95
+                     )
+model1.fit(train_data)
+future_for_14_days = model1.make_future_dataframe(periods=14, freq='D', include_history=False)
+forecast1 = model1.predict(future_for_14_days)
+next_14_days = forecast1.tail(7)
+Actual_for_14_days =  []
+Predicted_for_14_days = []
+Accuracy_for_14_days = []
+for i,j in zip(list(test_data_for_next_14_days['y'].tail(7)),list(next_14_days['yhat'])):
+   
+    i= int(i)
+    j = int(j)
+    Actual_for_14_days.append(i)
+    Predicted_for_14_days.append(j)
+
+for i,j in zip(Actual_for_14_days,Predicted_for_14_days):
+    c = abs(i-j)
+    c = c*100/i
+    c  = 100-c
+    c= int(c)
+    Accuracy_for_14_days.append(c)
+
+#ROOM SOLD FOR FOR 21 DAYS(15-21 days)
+model2 = Prophet(
+                        changepoint_prior_scale=0.3,  # Tweak this parameter based on your data
+                        yearly_seasonality=False,       # Add yearly seasonality
+                        weekly_seasonality=True, )
+model2.fit(train_data)
+future_for_21_days = model2.make_future_dataframe(periods=21, freq='D', include_history=False)
+forecast2 = model2.predict(future_for_21_days)
+next_21_days = forecast2.tail(7)
+Actual_for_21_days =  []
+Predicted_for_21_days = []
+Accuracy_for_21_days = []
+for i,j in zip(list(test_data_for_next_21_days['y'].tail(7)),list(next_21_days['yhat'])):
+    i= int(i)
+    j = int(j)
+    Actual_for_21_days.append(i)
+    Predicted_for_21_days.append(j)
+
+for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
+    c = abs(i-j)
+    c = c*100/i
+    c  = 100-c
+    c= int(c)
+    Accuracy_for_21_days.append(c)
+st.write("room_sales")
+
 
 if __name__ == '__main__':
     main()

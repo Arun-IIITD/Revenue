@@ -65,7 +65,7 @@ def custom_top_bar(selected_page=None):
     """
     Custom HTML for a fixed top bar.
     """
-    selected_page = selected_page or "Prediction"
+    selected_page = selected_page or "Room_sales"
     current_file = os.path.basename(__file__)
     custom_top_bar = f"""
     <style>
@@ -110,7 +110,7 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
             <a style="color: {'red' if selected_page == 'Room_sales' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Room_sales' else 'none'}" href="/Room_sales" target="_self">Manage Collections</a>
-        
+        </div>
     </div>
     """
     st.markdown(custom_top_bar, unsafe_allow_html=True)

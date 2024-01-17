@@ -543,55 +543,55 @@ model.fit(train_data)
 future_for_7_days = model.make_future_dataframe(periods=7, freq='D', include_history=False)
 forecast = model.predict(future_for_7_days)
 next_7_days = forecast.tail(7)
-Actual_for_7_days =  []
-Predicted_for_7_days = []
-Accuracy_for_7_days = []
-for i,j in zip(list(test_data_for_next_7_days['y'].tail(10)),list(next_7_days['yhat'])):
+Actual1_for_7_days =  []
+Predicted1_for_7_days = []
+Accuracy1_for_7_days = []
+for i,j in zip(list(test1_data_for_next_7_days['y'].tail(10)),list(next1_7_days['yhat'])):
     i= int(i)
     j = int(j)
-    Actual_for_7_days.append(i)
-    Predicted_for_7_days.append(j)
+    Actual1_for_7_days.append(i)
+    Predicted1_for_7_days.append(j)
 
-for i,j in zip(Actual_for_7_days,Predicted_for_7_days):
+for i,j in zip(Actual1_for_7_days,Predicted1_for_7_days):
     c = abs(i-j)
     c = (c*100)/i
     c  = 100-c
     c= int(c)
-    Accuracy_for_7_days.append(c)
+    Accuracy1_for_7_days.append(c)
 
 
 
 
-#ROOM SOLD FOR next 7 days(8-14)
-model1 = Prophet(changepoint_prior_scale=0.9,
-                holidays_prior_scale = 0.4,
-                #n_changepoints = 200,
-                seasonality_mode = 'multiplicative',
-                weekly_seasonality=True,
-                daily_seasonality = True,
-                yearly_seasonality = False,
-                interval_width=0.95
-                     )
-model1.fit(train_data)
-future_for_14_days = model1.make_future_dataframe(periods=14, freq='D', include_history=False)
-forecast1 = model1.predict(future_for_14_days)
-next_14_days = forecast1.tail(7)
-Actual_for_14_days =  []
-Predicted_for_14_days = []
-Accuracy_for_14_days = []
-for i,j in zip(list(test_data_for_next_14_days['y'].tail(7)),list(next_14_days['yhat'])):
+# #ROOM SOLD FOR next 7 days(8-14)
+# model1 = Prophet(changepoint_prior_scale=0.9,
+#                 holidays_prior_scale = 0.4,
+#                 #n_changepoints = 200,
+#                 seasonality_mode = 'multiplicative',
+#                 weekly_seasonality=True,
+#                 daily_seasonality = True,
+#                 yearly_seasonality = False,
+#                 interval_width=0.95
+#                      )
+# model1.fit(train_data)
+# future_for_14_days = model1.make_future_dataframe(periods=14, freq='D', include_history=False)
+# forecast1 = model1.predict(future_for_14_days)
+# next_14_days = forecast1.tail(7)
+# Actual_for_14_days =  []
+# Predicted_for_14_days = []
+# Accuracy_for_14_days = []
+# for i,j in zip(list(test_data_for_next_14_days['y'].tail(7)),list(next_14_days['yhat'])):
    
-    i= int(i)
-    j = int(j)
-    Actual_for_14_days.append(i)
-    Predicted_for_14_days.append(j)
+#     i= int(i)
+#     j = int(j)
+#     Actual_for_14_days.append(i)
+#     Predicted_for_14_days.append(j)
 
-for i,j in zip(Actual_for_14_days,Predicted_for_14_days):
-    c = abs(i-j)
-    c = c*100/i
-    c  = 100-c
-    c= int(c)
-    Accuracy_for_14_days.append(c)
+# for i,j in zip(Actual_for_14_days,Predicted_for_14_days):
+#     c = abs(i-j)
+#     c = c*100/i
+#     c  = 100-c
+#     c= int(c)
+#     Accuracy_for_14_days.append(c)
 
 #ROOM SOLD FOR FOR 21 DAYS(15-21 days)
 # model2 = Prophet(

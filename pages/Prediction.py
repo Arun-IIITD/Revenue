@@ -446,6 +446,10 @@ def main():
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
         st.write(f"Sensitivity: {round(sensitivity_values_for_7_days,3)}")
         st.write(f"MAE: {round(mae1)}")
+
+        df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
+        plot_revenue(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
+        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
         
         
         st.markdown("---")
@@ -523,10 +527,10 @@ cursor6 = collection6.find({})
 data6 = pd.DataFrame(list(cursor6))
 data6  = data6[['Date', 'Rooms Sold']]
 data6.columns = ['ds','y']
-train_data = data6.iloc[:237]
-test_data_for_next_7_days = data6.iloc[237:244]
-test_data_for_next_14_days = data6.iloc[245:252]
-test_data_for_next_21_days = data6.iloc[253:260]
+train_data_room_sales = data6.iloc[:237]
+test_data_for_next_7_days_room_sales = data6.iloc[237:244]
+test_data_for_next_14_days_room_sales = data6.iloc[245:252]
+test_data_for_next_21_days_room_sales = data6.iloc[253:260]
 data6['ds'] = pd.to_datetime(data6['ds'])
 
 # Room sold for first 7 days(0-7)
@@ -539,25 +543,49 @@ model = Prophet(
                         daily_seasonality = True,
                         yearly_seasonality = False,
                 )
-model.fit(train_data)
-future_for_7_days = model.make_future_dataframe(periods=7, freq='D', include_history=False)
-forecast = model.predict(future_for_7_days)
-next_7_days = forecast.tail(7)
-Actual1_for_7_days =  []
-Predicted1_for_7_days = []
-Accuracy1_for_7_days = []
-for i,j in zip(list(test1_data_for_next_7_days['y'].tail(10)),list(next1_7_days['yhat'])):
+model.fit(train_data_room_sales)
+future_for_7_days_room_sales = model.make_future_dataframe(periods=7, freq='D', include_history=False)
+forecast = model.predict(future_for_7_days_room_sales)
+next_7_days_room_sales = forecast.tail(7)
+Actual_for_7_days_room_sales =  []
+Predicted_for_7_days_room_sales = []
+Accuracy_for_7_days_room_sales = []
+for i,j in zip(list(test_data_for_next_7_days_room_sales['y'].tail(10)),list(next_7_days_room_sales['yhat'])):
     i= int(i)
     j = int(j)
-    Actual1_for_7_days.append(i)
-    Predicted1_for_7_days.append(j)
+    Actual_for_7_days_room_sales.append(i)
+    Predicted_for_7_days_room_sales.append(j)
 
-for i,j in zip(Actual1_for_7_days,Predicted1_for_7_days):
+for i,j in zip(Actual_for_7_days_room_sales,Predicted_for_7_days_sales):
     c = abs(i-j)
     c = (c*100)/i
     c  = 100-c
     c= int(c)
-    Accuracy1_for_7_days.append(c)
+    Accuracy_for_7_days_room_sales.append(c)
+
+# Convert to datetime and extract year and month
+data6['ds'] = pd.to_datetime(data6['ds'])
+data6['Year'] = data6['ds'].dt.year
+data6['Month'] = data6['ds'].dt.strftime('%B')  # Month in full name
+
+# Set a custom order for months
+month_order = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+]
+
+data6['Month'] = pd.Categorical(data6['Month'], categories=month_order, ordered=True)
+
+# Separate data for each year
+data_2022 = data6[data6['Year'] == 2022]
+data_2023 = data6[data6['Year'] == 2023]
+
+# Group by month and sum the revenues for each year
+monthly_total_room_sales_2022 = data_2022.groupby('Month')['y'].sum().reset_index()
+monthly_total_room_sales_2023 = data_2023.groupby('Month')['y'].sum().reset_index()
+
+# Merge the data for 2022 and 2023
+merged_data_room_sales = pd.merge(monthly_total_room_sales_2022, monthly_total_room_sales_2023, on='Month', suffixes=('_2022', '_2023'))
+
 
 
 

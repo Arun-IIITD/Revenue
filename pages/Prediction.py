@@ -356,6 +356,77 @@ def plot_revenue(actual_dates, actual_revenue, predicted_dates, predicted_revenu
     # Show the plot
     st.plotly_chart(fig)
 # ---------------------------------------------------------------------
+def plot_room_sales(actual_dates, actual_room_sales, predicted_dates, predicted_room_sales, title):
+    fig = go.Figure()
+
+    # Plot actual room sales
+    fig.add_trace(go.Scatter(x=actual_dates, y=actual_room_sales, mode='lines+markers', name='Actual Room Sales', line=dict(color='blue'), textposition='bottom center'))
+    
+    # Plot predicted revenue
+    fig.add_trace(go.Scatter(x=predicted_dates, y=predicted_room_sales, mode='lines+markers', name='Predicted Room Sales', line=dict(color='red'), textposition='bottom center'))
+
+    # Update layout for better interactivity
+    fig.update_layout(
+        title=title,
+        xaxis=dict(title='Date'),
+        yaxis=dict(title='Room Sales', range=[0,150]),
+        hovermode='x',
+        showlegend=False,  # Hide legend for cleaner appearance
+        legend_title='Legend',
+        font=dict(family='Arial', size=14),
+        shapes=[
+            dict(
+                type='line',
+                x0=0,
+                x1=1,
+                y0=0,
+                y1=0,
+                line=dict(color='lightgray', width=0.5),
+                xref='paper',
+                yref='paper'
+            ),
+            dict(
+                type='line',
+                x0=0,
+                x1=0,
+                y0=0,
+                y1=1,
+                line=dict(color='lightgray', width=0.5),
+                xref='paper',
+                yref='paper'
+            ),
+            dict(
+                type='line',
+                x0=1,
+                x1=1,
+                y0=0,
+                y1=1,
+                line=dict(color='lightgray', width=0.5),
+                xref='paper',
+                yref='paper'
+            ),
+            dict(
+                type='line',
+                x0=0,
+                x1=1,
+                y0=1,
+                y1=1,
+                line=dict(color='lightgray', width=0.5),
+                xref='paper',
+                yref='paper'
+            ),
+        ],
+        height=530,  # Adjust the height of the plot
+        width=530,   # Adjust the width of the plot
+        margin=dict(l=20, r=20, t=40, b=20),
+    )
+
+    # Show the plot
+    st.plotly_chart(fig)
+
+
+
+
 
 def plot_month_data():
     # Plotting using Plotly
@@ -559,7 +630,7 @@ def main():
 
     with col1:
         df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
-        plot_revenue(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
+        plot_room_sales(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
     
 

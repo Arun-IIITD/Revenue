@@ -466,69 +466,46 @@ def plot_month_data():
     # Show the plot
     st.plotly_chart(fig)
 
-collection6 = db["accuracy_room_sold"]
-cursor6 = collection6.find({})
-data6 = pd.DataFrame(list(cursor6))
-data6  = data6[['Date', 'Rooms Sold']]
-data6.columns = ['ds','y']
-train_data_room_sales = data6.iloc[:237]
-test_data_for_next_7_days_room_sales = data6.iloc[237:244]
-test_data_for_next_14_days_room_sales = data6.iloc[245:252]
-test_data_for_next_21_days_room_sales = data6.iloc[253:260]
-data6['ds'] = pd.to_datetime(data6['ds'])
+# collection6 = db["accuracy_room_sold"]
+# cursor6 = collection6.find({})
+# data6 = pd.DataFrame(list(cursor6))
+# data6  = data6[['Date', 'Rooms Sold']]
+# data6.columns = ['ds','y']
+# train_data_room_sales = data6.iloc[:237]
+# test_data_for_next_7_days_room_sales = data6.iloc[237:244]
+# test_data_for_next_14_days_room_sales = data6.iloc[245:252]
+# test_data_for_next_21_days_room_sales = data6.iloc[253:260]
+# data6['ds'] = pd.to_datetime(data6['ds'])
+# # Room sold for first 7 days(0-7)
+# model4 = Prophet(
+#                         changepoint_prior_scale= 0.9,
+#                         #holidays_prior_scale = 0.4,
+#                         #n_changepoints = 200,
+#                         #seasonality_mode = 'multiplicative',
+#                         weekly_seasonality=True,
+#                         daily_seasonality = True,
+#                         yearly_seasonality = False,
+#                 )
+# model4.fit(train_data_room_sales)
+# future_for_7_days_room_sales = model4.make_future_dataframe(periods=7, freq='D', include_history=False)
+# forecast = model4.predict(future_for_7_days_room_sales)
+# next_7_days_room_sales = forecast.tail(7)
+# Actual_for_7_days_room_sales =  []
+# Predicted_for_7_days_room_sales = []
+# Accuracy_for_7_days_room_sales = []
+# for i,j in zip(list(test_data_for_next_7_days_room_sales['y'].tail(10)),list(next_7_days_room_sales['yhat'])):
+#     i= int(i)
+#     j = int(j)
+#     Actual_for_7_days_room_sales.append(i)
+#     Predicted_for_7_days_room_sales.append(j)
 
-# Room sold for first 7 days(0-7)
-model4 = Prophet(
-                        changepoint_prior_scale= 0.9,
-                        #holidays_prior_scale = 0.4,
-                        #n_changepoints = 200,
-                        #seasonality_mode = 'multiplicative',
-                        weekly_seasonality=True,
-                        daily_seasonality = True,
-                        yearly_seasonality = False,
-                )
-model4.fit(train_data_room_sales)
-future_for_7_days_room_sales = model4.make_future_dataframe(periods=7, freq='D', include_history=False)
-forecast = model4.predict(future_for_7_days_room_sales)
-next_7_days_room_sales = forecast.tail(7)
-Actual_for_7_days_room_sales =  []
-Predicted_for_7_days_room_sales = []
-Accuracy_for_7_days_room_sales = []
-for i,j in zip(list(test_data_for_next_7_days_room_sales['y'].tail(10)),list(next_7_days_room_sales['yhat'])):
-    i= int(i)
-    j = int(j)
-    Actual_for_7_days_room_sales.append(i)
-    Predicted_for_7_days_room_sales.append(j)
+# for i,j in zip(Actual_for_7_days_room_sales,Predicted_for_7_days_room_sales):
+#     c = abs(i-j)
+#     c = (c*100)/i
+#     c  = 100-c
+#     c= int(c)
+#     Accuracy_for_7_days_room_sales.append(c)
 
-for i,j in zip(Actual_for_7_days_room_sales,Predicted_for_7_days_room_sales):
-    c = abs(i-j)
-    c = (c*100)/i
-    c  = 100-c
-    c= int(c)
-    Accuracy_for_7_days_room_sales.append(c)
-
-# Convert to datetime and extract year and month
-data6['ds'] = pd.to_datetime(data6['ds'])
-data6['Year'] = data6['ds'].dt.year
-data6['Month'] = data6['ds'].dt.strftime('%B')  # Month in full name
-
-# Set a custom order for months
-month_order = [
-    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
-]
-
-data6['Month'] = pd.Categorical(data6['Month'], categories=month_order, ordered=True)
-
-# Separate data for each year
-data_2022 = data6[data6['Year'] == 2022]
-data_2023 = data6[data6['Year'] == 2023]
-
-# Group by month and sum the revenues for each year
-monthly_total_room_sales_2022 = data_2022.groupby('Month')['y'].sum().reset_index()
-monthly_total_room_sales_2023 = data_2023.groupby('Month')['y'].sum().reset_index()
-
-# Merge the data for 2022 and 2023
-merged_data_room_sales = pd.merge(monthly_total_room_sales_2022, monthly_total_room_sales_2023, on='Month', suffixes=('_2022', '_2023'))
     
 def main():
     st.markdown(
@@ -583,13 +560,13 @@ def main():
         
         
         st.markdown("---")
-        # #Conversion of dfs into excel files
-        # revenue_df_7_days = pd.DataFrame({
-        #     'Date': test_data_for_next_7_days['ds'].tail(7),
-        #     'Actual_Revenue': Actual_for_7_days,
-        #     'Predicted_Revenue': Predicted_for_7_days,
-        #     'Accuracy_of_revenue': Accuracy_for_7_days,
-        #})
+        #Conversion of dfs into excel files
+        revenue_df_7_days = pd.DataFrame({
+            'Date': test_data_for_next_7_days['ds'].tail(7),
+            'Actual_Revenue': Actual_for_7_days,
+            'Predicted_Revenue': Predicted_for_7_days,
+            'Accuracy_of_revenue': Accuracy_for_7_days,
+        })
     # Plot for 8-14 Days
     with col2:
         df_14_days = pd.DataFrame({'Date': next_14_days['ds'].tail(7), 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
@@ -600,12 +577,12 @@ def main():
         st.write(f"Sensitivity: {round(sensitivity_values_for_14_days,3)}")
         st.write(f"MAE: {round(mae2)}")
         st.markdown("---")
-        # revenue_df_14_days = pd.DataFrame({
-        #     'Date': next_14_days['ds'].tail(7),
-        #     'Actual_Revenue': Actual_for_14_days,
-        #     'Predicted_Revenue': Predicted_for_14_days,
-        #     'Accuracy_of_revenue': Accuracy_for_14_days,
-        # })
+        revenue_df_14_days = pd.DataFrame({
+            'Date': next_14_days['ds'].tail(7),
+            'Actual_Revenue': Actual_for_14_days,
+            'Predicted_Revenue': Predicted_for_14_days,
+            'Accuracy_of_revenue': Accuracy_for_14_days,
+        })
     # Plot for 15-21 Days
     with col1:
         df_21_days = pd.DataFrame({'Date': next_21_days['ds'].tail(7), 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
@@ -617,44 +594,44 @@ def main():
         st.write(f"Sensitivity: {round(sensitivity_values_for_21_days,3)}")
         st.write(f"MAE: {round(mae3)}")
         st.markdown("---")
-        # revenue_df_21_days = pd.DataFrame({
-        #     'Date': next_21_days['ds'].tail(7),
-        #     'Actual_Revenue': Actual_for_21_days,
-        #     'Predicted_Revenue': Predicted_for_21_days,
-        #     'Accuracy_of_revenue': Accuracy_for_21_days,
-        # })
+        revenue_df_21_days = pd.DataFrame({
+            'Date': next_21_days['ds'].tail(7),
+            'Actual_Revenue': Actual_for_21_days,
+            'Predicted_Revenue': Predicted_for_21_days,
+            'Accuracy_of_revenue': Accuracy_for_21_days,
+        })
 
     #for MONTHLY
     with col1:
         plot_month_data()
 
-    with col1:
-        df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
-        plot_room_sales(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
+    # with col1:
+    #     df_7_days_room_sales = pd.DataFrame({'Date': test_data_for_next_7_days_room_sales['ds'], 'Actual': Actual_for_7_days_room_sales, 'Predicted': Predicted_for_7_days_room_sales})
+    #     plot_room_sales(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
+    #     st.write(f"Accuracy: {round(mean(Accuracy_for_7_days_room_sales))}%")
     
 
     
-    # st.subheader('Download Excel Files')
+     st.subheader('Download Excel Files')
 
-#     # Download links for Excel files
-#     with BytesIO() as buffer:
-#         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-#             revenue_df_7_days.to_excel(writer, sheet_name='revenue_data_7_days', index=False)
-#             revenue_df_14_days.to_excel(writer, sheet_name='revenue_data_14_days', index=False)
-#             revenue_df_21_days.to_excel(writer, sheet_name='revenue_data_21_days', index=False)
-#         buffer.seek(0)
+     # Download links for Excel files
+    with BytesIO() as buffer:
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            revenue_df_7_days.to_excel(writer, sheet_name='revenue_data_7_days', index=False)
+            revenue_df_14_days.to_excel(writer, sheet_name='revenue_data_14_days', index=False)
+            revenue_df_21_days.to_excel(writer, sheet_name='revenue_data_21_days', index=False)
+        buffer.seek(0)
 
-#         st.markdown(get_excel_download_link(buffer, 'revenue_data_7_days.xlsx', 'Download revenue_data_07_days.xlsx'), unsafe_allow_html=True)
-#         st.markdown(get_excel_download_link(buffer, 'revenue_data_14_days.xlsx', 'Download revenue_data_14_days.xlsx'), unsafe_allow_html=True)
-#         st.markdown(get_excel_download_link(buffer, 'revenue_data_21_days.xlsx', 'Download revenue_data_21_days.xlsx'), unsafe_allow_html=True)
+        st.markdown(get_excel_download_link(buffer, 'revenue_data_7_days.xlsx', 'Download revenue_data_07_days.xlsx'), unsafe_allow_html=True)
+        st.markdown(get_excel_download_link(buffer, 'revenue_data_14_days.xlsx', 'Download revenue_data_14_days.xlsx'), unsafe_allow_html=True)
+        st.markdown(get_excel_download_link(buffer, 'revenue_data_21_days.xlsx', 'Download revenue_data_21_days.xlsx'), unsafe_allow_html=True)
 
-# # Function to generate a download link for the Excel file
-# def get_excel_download_link(buffer, file_name, link_text):
-#     buffer = buffer.read()
-#     b64 = base64.b64encode(buffer).decode()
-#     href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}">{link_text}</a>'
-#     return href
+# Function to generate a download link for the Excel file
+def get_excel_download_link(buffer, file_name, link_text):
+    buffer = buffer.read()
+    b64 = base64.b64encode(buffer).decode()
+    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}">{link_text}</a>'
+    return href
 
 # ----------------------------------------------- 
 
@@ -663,62 +640,6 @@ def main():
 
 
 
-# #ROOM SOLD FOR next 7 days(8-14)
-# model1 = Prophet(changepoint_prior_scale=0.9,
-#                 holidays_prior_scale = 0.4,
-#                 #n_changepoints = 200,
-#                 seasonality_mode = 'multiplicative',
-#                 weekly_seasonality=True,
-#                 daily_seasonality = True,
-#                 yearly_seasonality = False,
-#                 interval_width=0.95
-#                      )
-# model1.fit(train_data)
-# future_for_14_days = model1.make_future_dataframe(periods=14, freq='D', include_history=False)
-# forecast1 = model1.predict(future_for_14_days)
-# next_14_days = forecast1.tail(7)
-# Actual_for_14_days =  []
-# Predicted_for_14_days = []
-# Accuracy_for_14_days = []
-# for i,j in zip(list(test_data_for_next_14_days['y'].tail(7)),list(next_14_days['yhat'])):
-   
-#     i= int(i)
-#     j = int(j)
-#     Actual_for_14_days.append(i)
-#     Predicted_for_14_days.append(j)
-
-# for i,j in zip(Actual_for_14_days,Predicted_for_14_days):
-#     c = abs(i-j)
-#     c = c*100/i
-#     c  = 100-c
-#     c= int(c)
-#     Accuracy_for_14_days.append(c)
-
-#ROOM SOLD FOR FOR 21 DAYS(15-21 days)
-# model2 = Prophet(
-#                         changepoint_prior_scale=0.3,  # Tweak this parameter based on your data
-#                         yearly_seasonality=False,       # Add yearly seasonality
-#                         weekly_seasonality=True, )
-# model2.fit(train_data)
-# future_for_21_days = model2.make_future_dataframe(periods=21, freq='D', include_history=False)
-# forecast2 = model2.predict(future_for_21_days)
-# next_21_days = forecast2.tail(7)
-# Actual_for_21_days =  []
-# Predicted_for_21_days = []
-# Accuracy_for_21_days = []
-# for i,j in zip(list(test_data_for_next_21_days['y'].tail(7)),list(next_21_days['yhat'])):
-#     i= int(i)
-#     j = int(j)
-#     Actual_for_21_days.append(i)
-#     Predicted_for_21_days.append(j)
-
-# for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
-#     c = abs(i-j)
-#     c = c*100/i
-#     c  = 100-c
-#     c= int(c)
-#     Accuracy_for_21_days.append(c)
-st.write("room_sales")
 
 
 if __name__ == '__main__':

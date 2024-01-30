@@ -155,7 +155,32 @@ def model_A():
     mae2 = np.mean(absolute_diff2)
     absolute_diff3 = np.abs(np.array(Predicted_for_21_days) - np.array(Actual_for_21_days))
     mae3 = np.mean(absolute_diff3)
-    return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3
+
+    # Convert 'ds' to datetime
+    data5['ds'] = pd.to_datetime(data5['ds'])
+
+    # Extract year and month
+    data5['Year'] = data5['ds'].dt.year
+    data5['Month'] = data5['ds'].dt.strftime('%B')  # Month in full name
+
+    # Filter for the year 2023
+    data_2023 = data5[data5['Year'] == 2023]
+
+    # Define the month order
+    month_order = [
+        'January', 'February', 'March', 'April', 'May', 'June', 
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+
+    # Make 'Month' a categorical column with a specified order
+    data_2023['Month'] = pd.Categorical(data_2023['Month'], categories=month_order, ordered=True)
+
+    # Group by month and sum the revenues for 2023
+    merged_data = data_2023.groupby('Month')['y'].sum().reset_index()
+
+
+
+    return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
 print(model_A())
 

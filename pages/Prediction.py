@@ -756,27 +756,27 @@ def main():
         st.markdown("---")
     
     #PLOT FOR 08-14 DAYS INDIVIDUAL REVENUE
-    with col10:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = dfs.model_IR()
-        df_14_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-        plot_individual_revenue(df_14_days_IR['Date'], df_14_days_IR['Actual'], df_14_days_IR['Date'], df_14_days_IR['Predicted'], 'For 08-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
-        st.write(f"MAE: {(mae2)}")
-        st.markdown("---")
+    # with col10:
+    #     #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = dfs.model_IR()
+    #     df_14_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
+    #     plot_individual_revenue(df_14_days_IR['Date'], df_14_days_IR['Actual'], df_14_days_IR['Date'], df_14_days_IR['Predicted'], 'For 08-14 Days')
+    #     st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
+    #     st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
+    #     st.write(f"MAE: {(mae2)}")
+    #     st.markdown("---")
     
-    #PLOT FOR 15-21 DAYS INDIVIDUAL REVENUE
-    with col9:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = dfs.model_IR()
-        df_21_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-        plot_individual_revenue(df_21_days_IR['Date'], df_21_days_IR['Actual'], df_21_days_IR['Date'], df_21_days_IR['Predicted'], 'For 15-21 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
-        st.write(f"MAE: {(mae3)}")
-        st.markdown("---")
+    # #PLOT FOR 15-21 DAYS INDIVIDUAL REVENUE
+    # with col9:
+    #     #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = dfs.model_IR()
+    #     df_21_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
+    #     plot_individual_revenue(df_21_days_IR['Date'], df_21_days_IR['Actual'], df_21_days_IR['Date'], df_21_days_IR['Predicted'], 'For 15-21 Days')
+    #     st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
+    #     st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
+    #     st.write(f"MAE: {(mae3)}")
+    #     st.markdown("---")
 
-    with col9:
-        plot_month_data_rooms(merged_data)
+    # with col9:
+    #     plot_month_data_rooms(merged_data)
     
 if __name__ == '__main__':
     main()

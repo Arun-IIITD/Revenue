@@ -87,10 +87,16 @@ df3.fillna(value, inplace=True)
 data3 = df3.to_dict(orient="records")
 result3 = collection3.insert_many(data3)
 
-collection4 = db["Prophet"]
+collection4 = db["Accuracy"]
 collection4.delete_many({})
 df4 = pd.read_excel("accuracy.xlsx")
 data4 = df4.to_dict(orient="records")
 result4 = collection4.insert_many(data4)
+
+collection5 = db["Summary"]
+collection5.delete_many({})
+df5 = pd.read_excel("Summary.xlsx")
+data5 = df5.to_dict(orient="records")
+result5 = collection5.insert_many(data5)
 
 client.close()

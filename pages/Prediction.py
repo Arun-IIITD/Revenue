@@ -742,18 +742,18 @@ def main():
 
     
     #Individual Revenue
-    st.subheader("Predicted vs Actual Individual Revenue")
-    col9,col10 = st.columns(2)
-    import prop_for_individual_revenue as dfs
-    #PLOT FOR FIRST 7 DAYS INDIVIDUAL REVENUE
-    with col9:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = dfs.model_IR()
-        df_7_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-        plot_individual_revenue(df_7_days_IR['Date'], df_7_days_IR['Actual'], df_7_days_IR['Date'], df_7_days_IR['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
-        st.write(f"MAE: {(mae1)}")
-        st.markdown("---")
+    # st.subheader("Predicted vs Actual Individual Revenue")
+    # col9,col10 = st.columns(2)
+    # import prop_for_individual_revenue as dfs
+    # #PLOT FOR FIRST 7 DAYS INDIVIDUAL REVENUE
+    # with col9:
+    #     Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = dfs.model_IR()
+    #     df_7_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
+    #     plot_individual_revenue(df_7_days_IR['Date'], df_7_days_IR['Actual'], df_7_days_IR['Date'], df_7_days_IR['Predicted'], 'For 0-07 Days')
+    #     st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
+    #     st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
+    #     st.write(f"MAE: {(mae1)}")
+    #     st.markdown("---")
     
     #PLOT FOR 08-14 DAYS INDIVIDUAL REVENUE
     # with col10:

@@ -126,9 +126,9 @@ def perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4):
 
     #for 2nd file 6 Feb - 9 Sep
     #converting all dates to month for getting data for specific month
-    collection = db["Forecastin"]
-    cursor = collection.find({})
-    monthly_data1 = pd.DataFrame(list(cursor))
+    collection5 = db["Revenue"]
+    cursor5 = collection5.find({})
+    monthly_data1 = pd.DataFrame(list(cursor5))
     #monthly_data1 = pd.read_excel('revenue.xlsx')
     monthly_data1['Business Date'] = pd.to_datetime(monthly_data1['Business Date'])
     monthly_data1['Month'] = monthly_data1['Business Date'].dt.strftime('%Y-%m')
@@ -146,7 +146,7 @@ def perform(excel_file1,excel_sheet1, excel_sheet2,excel_sheet3,excel_sheet4):
     cursor3 = collection3.find({"Date": {"$type": ["date", "null"]}})
     monthly_data = pd.DataFrame(list(cursor3))
     
-    
+   
 
     value = "1"
     monthly_data.fillna(value, inplace=True)

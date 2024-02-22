@@ -49,6 +49,7 @@ def set_custom_styles():
     </style>
     """
     st.markdown(custom_styles, unsafe_allow_html=True)
+    
 def custom_top_bar(selected_page=None):
     """
     Custom HTML for a fixed top bar.
@@ -98,10 +99,17 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Report' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Report' else 'none'}" href="/Report" target="_self">Report</a>
             <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
-        </div>
+            <a style="color: {'red' if selected_page == 'market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
+
+        
     </div>
     """
     st.markdown(custom_top_bar, unsafe_allow_html=True)
+
+def new_tab_content():
+    st.title("NewTab Content")
+    st.write("Content for the new tab goes here.")
+
 
 # custom_top_bar()
 set_custom_styles()
@@ -114,6 +122,7 @@ url_to_page = {
     "/Report": "Report",
     "/Prediction": "Prediction",
     "/upload": "Upload",
+    "/market": "market",
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)

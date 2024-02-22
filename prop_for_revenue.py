@@ -26,9 +26,13 @@ db = client[database_name]
 collection4 = db["Accuracy"]
 cursor4 = collection4.find({})
 data4 = pd.DataFrame(list(cursor4))
-data4 = data4[['ds','Room Revenue']]
-data4.columns = ['ds','y']           
+
+data4 = data4[['Business Date','Room Revenue']]
+data4.columns = ['ds','y'] 
+data4 = data4.drop_duplicates()  
+
 train_data = data4.iloc[:760]
+print(train_data)
 test_data_for_next_7_days = data4.iloc[760:767]
 test_data_for_next_14_days = data4.iloc[767:774]
 test_data_for_next_21_days = data4.iloc[774:781]
@@ -43,7 +47,7 @@ def model_rev():
                             weekly_seasonality=True,
                             daily_seasonality = True,
                             yearly_seasonality = True,
-                            #interval_width=0.95
+                            interval_width=0.95
                             )
     model.fit(train_data)
     future_for_7_days = model.make_future_dataframe(periods=7, freq='D', include_history=False)
@@ -73,9 +77,9 @@ def model_rev():
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 0.9,
+                        changepoint_prior_scale= 0.1,
                         holidays_prior_scale = 0.4,
-                        n_changepoints = 400,
+                        n_changepoints = 700,
                         seasonality_mode = 'additive',
                         weekly_seasonality=True,
                         daily_seasonality = True,
@@ -187,6 +191,11 @@ def model_rev():
 
     return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
+arr = model_rev()
+
+print(arr[2])
+print(arr[5])
+print(arr[8])
 
 
 

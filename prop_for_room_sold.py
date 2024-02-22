@@ -13,18 +13,21 @@ db = client[database_name]
 collection4 = db["Accuracy"]
 cursor4 = collection4.find({})
 data4 = pd.DataFrame(list(cursor4))
-data4 = data4[['ds','Room Sold']]
-data4.columns = ['ds','y']           
-train_data = data4.iloc[500:760]
-test_data_for_next_7_days = data4.iloc[760:767]
-test_data_for_next_14_days = data4.iloc[767:774]
-test_data_for_next_21_days = data4.iloc[774:781]
+data4 = data4[['Business Date','Rooms Sold']]
+data4.columns = ['ds','y']    
+
+data4 = data4.drop_duplicates()  
+train_data = data4.iloc[:237]
+print(train_data)
+test_data_for_next_7_days = data4.iloc[237:244]
+test_data_for_next_14_days = data4.iloc[244:251]
+test_data_for_next_21_days = data4.iloc[251:258]
 
 
 def model_R():
     # Room sold for first 7 days(0-7)
     model = Prophet(
-                            changepoint_prior_scale= 0.9,
+                            changepoint_prior_scale= 0.01,
                             holidays_prior_scale = 0.4,
                             n_changepoints = 200,
                             seasonality_mode = 'multiplicative',
@@ -65,7 +68,7 @@ def model_R():
 
 
     #ROOM SOLD FOR next 7 days(8-14)
-    model1 = Prophet(changepoint_prior_scale=0.9,
+    model1 = Prophet(changepoint_prior_scale=0.01,
                     holidays_prior_scale = 0.4,
                     #n_changepoints = 200,
                     seasonality_mode = 'multiplicative',
@@ -106,7 +109,7 @@ def model_R():
 
     #ROOM SOLD FOR FOR 21 DAYS(15-21 days)
     model2 = Prophet(
-                            changepoint_prior_scale=0.3,  # Tweak this parameter based on your data
+                            changepoint_prior_scale=0.1,  # Tweak this parameter based on your data
                             yearly_seasonality=False,       # Add yearly seasonality
                             weekly_seasonality=True, )
     model2.fit(train_data)
@@ -171,7 +174,11 @@ def model_R():
 
     return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
+arr = model_R()
 
+print(arr[2])
+print(arr[5])
+print(arr[8])
 
 
 

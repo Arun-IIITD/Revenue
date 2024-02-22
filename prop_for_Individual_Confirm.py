@@ -22,15 +22,15 @@ connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 db = client[database_name] 
-collection5 = db["Summary"]
+collection5 = db["Revenue"]
 cursor5 = collection5.find({})
 data5 = pd.DataFrame(list(cursor5))
-data5 = data5[['Date','Individual Confirm']]
+data5 = data5[['Business Date','Individual Confirm']]
 data5.columns = ['ds','y']
-train_data = data5.iloc[:237]
-test_data_for_next_7_days = data5.iloc[237:244]
-test_data_for_next_14_days = data5.iloc[244:251]
-test_data_for_next_21_days = data5.iloc[251:258]
+train_data = data5.iloc[:323]
+test_data_for_next_7_days = data5.iloc[323:330]
+test_data_for_next_14_days = data5.iloc[330:337]
+test_data_for_next_21_days = data5.iloc[337:344]
 
 def model_IC():
     model = Prophet(
@@ -70,7 +70,7 @@ def model_IC():
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 0.2,
+                        changepoint_prior_scale= 0.1,
                         holidays_prior_scale = 0.4,
                         n_changepoints = 400,
                         seasonality_mode = 'additive',

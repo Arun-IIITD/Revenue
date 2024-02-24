@@ -339,14 +339,14 @@ def main():
    
     #---------------------------------------------------------------------------
    #MONTH AND DAILY VIEW
-    data4['Business Date'] = pd.to_datetime(data4['Business Date'])
-    data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
-    data4_monthly = data4.groupby('Month_Year').sum()  
-    data4_monthly.index = data4_monthly.index.to_timestamp()
-    data4_monthly['Month_Year'] = data4_monthly.index.strftime('%B_%Y')
-    view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
-    data4['Business Date'] = pd.to_datetime(data4['Business Date'])
-    data4['Business Date'] = data4['Business Date'].dt.date
+    # data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    # data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
+    # data4_monthly = data4.groupby('Month_Year').sum()  
+    # data4_monthly.index = data4_monthly.index.to_timestamp()
+    # data4_monthly['Month_Year'] = data4_monthly.index.strftime('%B_%Y')
+    # view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
+    # data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    # data4['Business Date'] = data4['Business Date'].dt.date
 
     data5['Business Date'] = pd.to_datetime(data5['Business Date'])
     data5['Month_Year'] = data5['Business Date'].dt.to_period('M')

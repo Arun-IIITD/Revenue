@@ -348,6 +348,9 @@ def main():
    
     #MONTH AND DAILY VIEW
     df['Month_Year'] = df['Business Date'].dt.to_period('M')
+
+
+    
     df_monthly = df.groupby('Month_Year').sum()  
     df_monthly.index = df_monthly.index.to_timestamp()
     df_monthly['Month_Year'] = df_monthly.index.strftime('%B_%Y')

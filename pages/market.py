@@ -339,30 +339,31 @@ def main():
    
     #---------------------------------------------------------------------------
    #MONTH AND DAILY VIEW
-    # data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
-    # data4_monthly = data4.groupby('Month_Year').sum()  
-    # data4_monthly.index = data4_monthly.index.to_timestamp()
-    # data4_monthly['Month_Year'] = data4_monthly.index.strftime('%B_%Y')
-    # view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
-    # data4['Business Date'] = pd.to_datetime(data4['Business Date'])
-    # data4['Business Date'] = data4['Business Date'].dt.date
+    data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
+    data4_monthly = data4.groupby('Month_Year').sum()  
+    data4_monthly.index = data4_monthly.index.to_timestamp()
+    data4_monthly['Month_Year'] = data4_monthly.index.strftime('%B_%Y')
+    view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
+    data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    data4['Business Date'] = data4['Business Date'].dt.date
 
-    # data5['Business Date'] = pd.to_datetime(data5['Business Date'])
-    # data5['Month_Year'] = data5['Business Date'].dt.to_period('M')
-    # data5_monthly = data5.groupby('Month_Year').sum()  
-    # data5_monthly.index = data5_monthly.index.to_timestamp()
-    # data5_monthly['Month_Year'] = data5_monthly.index.strftime('%B_%Y')
-    # data5['Business Date'] = pd.to_datetime(data4['Business Date'])
-    # data5['Business Date'] = data5['Business Date'].dt.date
+    data5['Business Date'] = pd.to_datetime(data5['Business Date'])
+    data5['Month_Year'] = data5['Business Date'].dt.to_period('M')
+    data5_monthly = data5.groupby('Month_Year').sum()  
+    data5_monthly.index = data5_monthly.index.to_timestamp()
+    data5_monthly['Month_Year'] = data5_monthly.index.strftime('%B_%Y')
+    data5['Business Date'] = pd.to_datetime(data5['Business Date'])
+    data5['Business Date'] = data5['Business Date'].dt.date
 
-    # if view_option == 'Daily':
-    #     st.write("Daily View")
-    #     #st.dataframe(data4[['Business Date', 'Room Revenue','Rooms Sold']])  
-    #     st.dataframe(data5[['Business Date','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
-    # elif view_option == 'Monthly':
-    #     st.write("Monthly View")
-    #     #st.dataframe(data4_monthly.reset_index(drop=True)[['Month_Year', 'Room Revenue','Rooms Sold']])  
-    #     st.dataframe(data5_monthly.reset_index(drop=True)[['Month_Year','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
+    if view_option == 'Daily':
+        st.write("Daily View")
+        #st.dataframe(data4[['Business Date', 'Room Revenue','Rooms Sold']])  
+        st.dataframe(data5[['Business Date','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
+    elif view_option == 'Monthly':
+        st.write("Monthly View")
+        #st.dataframe(data4_monthly.reset_index(drop=True)[['Month_Year', 'Room Revenue','Rooms Sold']])  
+        st.dataframe(data5_monthly.reset_index(drop=True)[['Month_Year','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
         
 if __name__ == '__main__':
     main()

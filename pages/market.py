@@ -283,47 +283,41 @@ def main():
     db = client[database_name] 
     collection4 = db["Accuracy"]
     cursor4 = collection4.find({})
-    df = pd.DataFrame(list(cursor4))
+    data4 = pd.DataFrame(list(cursor4))
     collection5 = db["Revenue"]
     cursor5 = collection5.find({})
     data5 = pd.DataFrame(list(cursor5))
     #--------------------------------------
   
     selected_month = st.selectbox('Select Month', range(1, 13), format_func=lambda x: calendar.month_name[x])
-    current_year_df = df[(df['Business Date'].dt.month == selected_month) & (df['Business Date'].dt.year == selected_year)]
-    previous_year_df = df[(df['Business Date'].dt.month == selected_month) & (df['Business Date'].dt.year == previous_year)]
-    current_year_revenue = current_year_df['Room Revenue']
-    previous_year_revenue = previous_year_df['Room Revenue']
-    current_room_sold = current_year_df['Rooms Sold']
-    previous_year_room_sold = previous_year_df['Rooms Sold']
-    dates = current_year_df['Business Date']
+    current_year_data4 = data4[(data4['Business Date'].dt.month == selected_month) & (data4['Business Date'].dt.year == selected_year)]
+    previous_year_data4 = data4[(data4['Business Date'].dt.month == selected_month) & (data4['Business Date'].dt.year == previous_year)]
+    current_year_revenue = current_year_data4['Room Revenue']
+    previous_year_revenue = previous_year_data4['Room Revenue']
+    current_room_sold = current_year_data4['Rooms Sold']
+    previous_year_room_sold = previous_year_data4['Rooms Sold']
+    dates = current_year_data4['Business Date']
 
-   
-    
-    #FOR PLOTTING GRAPH
+#FOR PLOTTING GRAPH
     st.subheader("Room Revenue Comparison")
     col1,col2 = st.columns(2)
     with col1:
         plot_graph_revenue(dates, current_year_revenue,previous_year_revenue)
    
-
     st.subheader("Room Sold Comparison")
     col3,col4 = st.columns(2)
     with col3:
         plot_graph_room(dates, current_room_sold, previous_year_room_sold)
 
-
-    
     #FOR ARRIVAL ROOMS
     selected_month1 = st.selectbox('Select Month', range(9, 13), format_func=lambda x: calendar.month_name[x])
     data5['Business Date'] = pd.to_datetime(data5['Business Date'])
     selected_year1 = 2023
-    current_year_df1 = data5[(data5['Business Date'].dt.month == selected_month1) & (data5['Business Date'].dt.year == selected_year1)]
-    current_year_Arrival_rooms = current_year_df1['Arrival Rooms']
-    current_year_Individual_Confirm = current_year_df1['Individual Confirm']
-    current_year_Individual_Revenue = current_year_df1['Individual Revenue']
-
-    dates1 = current_year_df1['Business Date']
+    current_year_data5 = data5[(data5['Business Date'].dt.month == selected_month1) & (data5['Business Date'].dt.year == selected_year1)]
+    current_year_Arrival_rooms = current_year_data5['Arrival Rooms']
+    current_year_Individual_Confirm = current_year_data5['Individual Confirm']
+    current_year_Individual_Revenue = current_year_data5['Individual Revenue']
+    dates1 = current_year_data5['Business Date']
 
 
     st.subheader("Arrival Room  Comparison")
@@ -344,39 +338,31 @@ def main():
     
    
     #---------------------------------------------------------------------------
-   
-   
-    #MONTH AND DAILY VIEW
-    df['Month_Year'] = df['Business Date'].dt.to_period('M')
+   #MONTH AND DAILY VIEW
+    # data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
+    # data4_monthly = data4.groupby('Month_Year').sum()  
+    # data4_monthly.index = data4_monthly.index.to_timestamp()
+    # data4_monthly['Month_Year'] = data4_monthly.index.strftime('%B_%Y')
+    # view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
+    # data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    # data4['Business Date'] = data4['Business Date'].dt.date
 
+    # data5['Business Date'] = pd.to_datetime(data5['Business Date'])
+    # data5['Month_Year'] = data5['Business Date'].dt.to_period('M')
+    # data5_monthly = data5.groupby('Month_Year').sum()  
+    # data5_monthly.index = data5_monthly.index.to_timestamp()
+    # data5_monthly['Month_Year'] = data5_monthly.index.strftime('%B_%Y')
+    # data5['Business Date'] = pd.to_datetime(data4['Business Date'])
+    # data5['Business Date'] = data5['Business Date'].dt.date
 
-    
-    df_monthly = df.groupby('Month_Year').sum()  
-    df_monthly.index = df_monthly.index.to_timestamp()
-    df_monthly['Month_Year'] = df_monthly.index.strftime('%B_%Y')
-    view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
-    df['Business Date'] = pd.to_datetime(df['Business Date'])
-    df['Business Date'] = df['Business Date'].dt.date
-
-    data5['Business Date'] = pd.to_datetime(data5['Business Date'])
-    data5['Month_Year'] = data5['Business Date'].dt.to_period('M')
-    data5_monthly = data5.groupby('Month_Year').sum()  
-    data5_monthly.index = data5_monthly.index.to_timestamp()
-    data5_monthly['Month_Year'] = data5_monthly.index.strftime('%B_%Y')
-    #view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
-    data5['Business Date'] = pd.to_datetime(df['Business Date'])
-    data5['Business Date'] = data5['Business Date'].dt.date
-
-
-
-    if view_option == 'Daily':
-        st.write("Daily View")
-        #st.dataframe(df[['Business Date', 'Room Revenue','Rooms Sold']])  
-        st.dataframe(data5[['Business Date','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
-    elif view_option == 'Monthly':
-        st.write("Monthly View")
-        #st.dataframe(df_monthly.reset_index(drop=True)[['Month_Year', 'Room Revenue','Rooms Sold']])  
-        st.dataframe(data5_monthly.reset_index(drop=True)[['Month_Year','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
+    # if view_option == 'Daily':
+    #     st.write("Daily View")
+    #     #st.dataframe(data4[['Business Date', 'Room Revenue','Rooms Sold']])  
+    #     st.dataframe(data5[['Business Date','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
+    # elif view_option == 'Monthly':
+    #     st.write("Monthly View")
+    #     #st.dataframe(data4_monthly.reset_index(drop=True)[['Month_Year', 'Room Revenue','Rooms Sold']])  
+    #     st.dataframe(data5_monthly.reset_index(drop=True)[['Month_Year','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
         
 if __name__ == '__main__':
     main()

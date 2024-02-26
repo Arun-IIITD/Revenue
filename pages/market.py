@@ -20,8 +20,6 @@ from prophet.plot import add_changepoints_to_plot
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from statsmodels.tsa.arima.model import ARIMA
 
-from CAL import perform
-
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
 
 def set_custom_styles():
@@ -274,8 +272,7 @@ def main():
 
     #MONTH WISE ROOM REVENUE AND ROOM SOLD
     st.subheader("Graphs for different attributes month wise")
-    selected_year = 2023
-    previous_year = 2022
+  
     #FOR FETCHING DATA ACCURACY
     connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
     client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
@@ -284,13 +281,20 @@ def main():
     collection4 = db["Accuracy"]
     cursor4 = collection4.find({})
     data4 = pd.DataFrame(list(cursor4))
+    data4 = data4.drop_duplicates() 
     collection5 = db["Revenue"]
     cursor5 = collection5.find({})
     data5 = pd.DataFrame(list(cursor5))
+    data5 = data5.drop_duplicates() 
     #--------------------------------------
-  
+    #SELCT MONTH AND YEAR
     selected_month = st.selectbox('Select Month', range(1, 13), format_func=lambda x: calendar.month_name[x])
-    current_year_data4 = data4[(data4['Business Date'].dt.month == selected_month) & (data4['Business Date'].dt.year == selected_year)]
+    years = list(range(2021, 2025))
+    current_year = st.selectbox('Select current year:', years)
+    previous_year = st.selectbox('Select previous year:', years)
+
+    #FOR ROOM REVENUE AND ROOM SOLD
+    current_year_data4 = data4[(data4['Business Date'].dt.month == selected_month) & (data4['Business Date'].dt.year == current_year)]
     previous_year_data4 = data4[(data4['Business Date'].dt.month == selected_month) & (data4['Business Date'].dt.year == previous_year)]
     current_year_revenue = current_year_data4['Room Revenue']
     previous_year_revenue = previous_year_data4['Room Revenue']
@@ -298,7 +302,7 @@ def main():
     previous_year_room_sold = previous_year_data4['Rooms Sold']
     dates = current_year_data4['Business Date']
 
-#FOR PLOTTING GRAPH
+    #FOR PLOTTING GRAPH
     st.subheader("Room Revenue Comparison")
     col1,col2 = st.columns(2)
     with col1:
@@ -310,44 +314,52 @@ def main():
         plot_graph_room(dates, current_room_sold, previous_year_room_sold)
 
     #FOR ARRIVAL ROOMS
-    selected_month1 = st.selectbox('Select Month', range(9, 13), format_func=lambda x: calendar.month_name[x])
+    #selected_month1 = st.selectbox('Select Month', range(9, 13), format_func=lambda x: calendar.month_name[x])
     data5['Business Date'] = pd.to_datetime(data5['Business Date'])
-    selected_year1 = 2023
-    current_year_data5 = data5[(data5['Business Date'].dt.month == selected_month1) & (data5['Business Date'].dt.year == selected_year1)]
+    #selected_year1 = 2023
+    current_year_data5 = data5[(data5['Business Date'].dt.month == selected_month) & (data5['Business Date'].dt.year == current_year)]
     current_year_Arrival_rooms = current_year_data5['Arrival Rooms']
     current_year_Individual_Confirm = current_year_data5['Individual Confirm']
     current_year_Individual_Revenue = current_year_data5['Individual Revenue']
-    dates1 = current_year_data5['Business Date']
 
 
     st.subheader("Arrival Room  Comparison")
     col5,col6 = st.columns(2)
     with col5:
-        plot_graph_arrival_room(dates1, current_year_Arrival_rooms)
+        plot_graph_arrival_room(dates, current_year_Arrival_rooms)
 
     st.subheader("Individual Confirm  Comparison")
     col5,col6 = st.columns(2)
     with col5:
-        plot_graph_arrival_room(dates1, current_year_Individual_Confirm)
+        plot_graph_arrival_room(dates, current_year_Individual_Confirm)
 
     st.subheader("Individual Revenue  Comparison")
     col5,col6 = st.columns(2)
     with col5:
-        plot_graph_individual_revenue(dates1, current_year_Individual_Revenue)
+        plot_graph_individual_revenue(dates, current_year_Individual_Revenue)
 
     
    
     #---------------------------------------------------------------------------
-   #MONTH AND DAILY VIEW
-    # data4['Business Date'] = pd.to_datetime(data4['Business Date'])
-    # data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
-    # data4_monthly = data4.groupby('Month_Year').sum()  
-    # data4_monthly.index = data4_monthly.index.to_timestamp()
-    # data4_monthly['Month_Year'] = data4_monthly.index.strftime('%B_%Y')
-    # view_option = st.selectbox("Select View", ['Daily', 'Monthly'])
-    # data4['Business Date'] = pd.to_datetime(data4['Business Date'])
-    # data4['Business Date'] = data4['Business Date'].dt.date
-
+   #YEARLY, MONTH, DAILY AND WEEKLY VIEW
+    data4 = data4.drop_duplicates() 
+    data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
+    data4_monthly = data4.groupby('Month_Year').sum()  
+    data4_monthly.index = data4_monthly.index.to_timestamp()
+    data4_monthly['Month_Year'] = data4_monthly.index.strftime('%B_%Y')
+    data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    data4['Business Date'] = data4['Business Date'].dt.date
+    data4['Business Date'] = pd.to_datetime(data4['Business Date'])
+    data4['Year'] = data4['Business Date'].dt.to_period('Y')
+    data4_yearly = data4.groupby('Year').sum()
+    data4_yearly['Year'] = data4_yearly.index.astype(str)
+    data4['Week'] = data4['Business Date'].dt.to_period('W')
+    data4_weekly = data4.groupby('Week').sum()
+    data4_weekly.index = data4_weekly.index.to_timestamp()
+    data4_weekly['Week'] = data4_weekly.index.strftime('%U_%Y')
+    
+    data5 = data5.drop_duplicates() 
     data5['Business Date'] = pd.to_datetime(data5['Business Date'])
     data5['Month_Year'] = data5['Business Date'].dt.to_period('M')
     data5_monthly = data5.groupby('Month_Year').sum()  
@@ -355,15 +367,40 @@ def main():
     data5_monthly['Month_Year'] = data5_monthly.index.strftime('%B_%Y')
     data5['Business Date'] = pd.to_datetime(data5['Business Date'])
     data5['Business Date'] = data5['Business Date'].dt.date
+    data5['Business Date'] = pd.to_datetime(data5['Business Date'])
+    data5['Year'] = data5['Business Date'].dt.to_period('Y')
+    data5_yearly = data5.groupby('Year').sum()
+    data5_yearly['Year'] = data5_yearly.index.astype(str)
+    data5['Week'] = data5['Business Date'].dt.to_period('W')
+    data5_weekly = data5.groupby('Week').sum()
+    data5_weekly.index = data5_weekly.index.to_timestamp()
+    data5_weekly['Week'] = data5_weekly.index.strftime('%U_%Y')
+
+    view_option = st.selectbox("Select View", ['Yearly', 'Monthly','Weekly','Daily'])
 
     if view_option == 'Daily':
         st.write("Daily View")
-        #st.dataframe(data4[['Business Date', 'Room Revenue','Rooms Sold']])  
-        st.dataframe(data5[['Business Date','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
+        st.write("Data from Sep2021 - Dec2021 is zero due to covid.")
+        st.dataframe(data4[['Business Date', 'Room Revenue','Rooms Sold']])  
+        st.dataframe(data5[['Business Date','Arrival Rooms','Individual Confirm','Individual Revenue']])  
+
     elif view_option == 'Monthly':
         st.write("Monthly View")
-        #st.dataframe(data4_monthly.reset_index(drop=True)[['Month_Year', 'Room Revenue','Rooms Sold']])  
-        st.dataframe(data5_monthly.reset_index(drop=True)[['Month_Year','Room Revenue','Rooms Sold', 'Arrival Rooms','Individual Confirm','Individual Revenue']])  
-        
+        st.write("Data from Sep2021 - Dec2021 is zero due to covid.")
+        st.dataframe(data4_monthly.reset_index(drop=True)[['Month_Year', 'Room Revenue','Rooms Sold']])  
+        st.dataframe(data5_monthly.reset_index(drop=True)[['Month_Year','Arrival Rooms','Individual Confirm','Individual Revenue']])  
+
+    elif view_option == 'Weekly':
+        st.write("Weekly View")
+        st.write("Data from Sep2021 - Dec2021 is zero due to covid.")
+        st.dataframe(data4_weekly.reset_index(drop=True)[['Week', 'Room Revenue', 'Rooms Sold']]) 
+        st.dataframe(data5_weekly.reset_index(drop=True)[['Week', 'Arrival Rooms', 'Individual Confirm', 'Individual Revenue']])
+       
+    elif view_option == 'Yearly':
+        st.write("Yearly View")
+        st.write("Data from Sep2021 - Dec2021 is zero due to covid.")
+        st.dataframe(data4_yearly.reset_index(drop=True)[['Year', 'Room Revenue','Rooms Sold']])  
+        st.dataframe(data5_yearly.reset_index(drop=True)[['Year', 'Arrival Rooms', 'Individual Confirm', 'Individual Revenue']])
+
 if __name__ == '__main__':
     main()

@@ -17,11 +17,16 @@ data4 = data4[['Business Date','Rooms Sold']]
 data4.columns = ['ds','y']    
 
 data4 = data4.drop_duplicates()  
-train_data = data4.iloc[:237]
+# train_data = data4.iloc[:850]
+# test_data_for_next_7_days = data4.iloc[760:767]
+# test_data_for_next_14_days = data4.iloc[767:774]
+# test_data_for_next_21_days = data4.iloc[774:781]
+train_data = data4.iloc[500:852]
 print(train_data)
-test_data_for_next_7_days = data4.iloc[237:244]
-test_data_for_next_14_days = data4.iloc[244:251]
-test_data_for_next_21_days = data4.iloc[251:258]
+test_data_for_next_7_days = data4.iloc[852:859]
+test_data_for_next_14_days = data4.iloc[859:866]
+test_data_for_next_21_days = data4.iloc[866:873]
+
 
 
 def model_R():

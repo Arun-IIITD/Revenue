@@ -29,13 +29,18 @@ data4 = pd.DataFrame(list(cursor4))
 
 data4 = data4[['Business Date','Room Revenue']]
 data4.columns = ['ds','y'] 
-data4 = data4.drop_duplicates()  
 
-train_data = data4.iloc[:760]
+data4 = data4.drop_duplicates()  
+# train_data = data4.iloc[:760]
+# print(train_data)
+# test_data_for_next_7_days = data4.iloc[760:767]
+# test_data_for_next_14_days = data4.iloc[767:774]
+# test_data_for_next_21_days = data4.iloc[774:781]
+train_data = data4.iloc[:850]
 print(train_data)
-test_data_for_next_7_days = data4.iloc[760:767]
-test_data_for_next_14_days = data4.iloc[767:774]
-test_data_for_next_21_days = data4.iloc[774:781]
+test_data_for_next_7_days = data4.iloc[850:857]
+test_data_for_next_14_days = data4.iloc[857:864]
+test_data_for_next_21_days = data4.iloc[864:871]
 
 def model_rev():
 #FOR 1st 7 DAYS(1-7)
@@ -77,7 +82,7 @@ def model_rev():
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 0.1,
+                        changepoint_prior_scale= 0.01,
                         holidays_prior_scale = 0.4,
                         n_changepoints = 700,
                         seasonality_mode = 'additive',

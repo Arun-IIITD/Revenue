@@ -27,7 +27,7 @@ cursor5 = collection5.find({})
 data5 = pd.DataFrame(list(cursor5))
 data5 = data5[['Business Date','Arrival Rooms']]
 data5.columns = ['ds','y']
-train_data = data5.iloc[:323]
+train_data = data5.iloc[100:323]
 test_data_for_next_7_days = data5.iloc[323:330]
 test_data_for_next_14_days = data5.iloc[330:337]
 test_data_for_next_21_days = data5.iloc[337:344]
@@ -76,7 +76,7 @@ def model_A():
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 0.9,
+                        changepoint_prior_scale= 0.1,
                         holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'additive',
@@ -114,7 +114,7 @@ def model_A():
 
     # For the next 7 days(15-21 days)
     model2 = Prophet(
-                        changepoint_prior_scale= 0.5,
+                        changepoint_prior_scale= 0.1,
                         #holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'multiplicative',
@@ -185,7 +185,12 @@ def model_A():
 
     return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
-print(model_A())
+#print(model_A())
+arr = model_A()
+
+print(arr[2])
+print(arr[5])
+print(arr[8])
 
 
 

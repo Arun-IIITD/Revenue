@@ -88,13 +88,10 @@ df4 = pd.read_excel("accuracy.xlsx")
 data4 = df4.to_dict(orient="records")
 result4 = collection4.insert_many(data4)
 
-<<<<<<< HEAD
+
 collection5 = db["Revenue"]
 collection5.delete_many({})
 df5 = pd.read_excel("revenue.xlsx")
 data_to_insert = df5.to_dict(orient='records')
 result = collection5.insert_many(data_to_insert)
-
-=======
->>>>>>> parent of 77a7993 (Update connection.py)
 client.close()

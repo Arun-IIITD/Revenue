@@ -71,27 +71,32 @@ result1 = collection1.insert_many(data1)
 collection2 = db["History_Fore"]
 collection2.delete_many({})
 df2 = pd.read_excel("History and Forecast Report-20220401-20230205.xls")
+df2 = df2.drop_duplicates()
 data2 = df2.to_dict(orient="records")
 result2 = collection2.insert_many(data2)
 
 collection3 = db["Covid"]
 collection3.delete_many({})
 df3 = pd.read_excel("covid_room_revenue.xlsx")
+data3 = df3.drop_duplicates()  
 value = "1"
 df3.fillna(value, inplace=True)
 data3 = df3.to_dict(orient="records")
 result3 = collection3.insert_many(data3)
 
-collection4 = db["Prophet"]
+collection4 = db["Accuracy"]
 collection4.delete_many({})
 df4 = pd.read_excel("accuracy.xlsx")
+data4 = df4.drop_duplicates() 
 data4 = df4.to_dict(orient="records")
+ 
 result4 = collection4.insert_many(data4)
-
 
 collection5 = db["Revenue"]
 collection5.delete_many({})
 df5 = pd.read_excel("revenue.xlsx")
-data_to_insert = df5.to_dict(orient='records')
-result = collection5.insert_many(data_to_insert)
+data5 = df5.drop_duplicates()
+data5 = df5.to_dict(orient='records')
+
+result5 = collection5.insert_many(data5)
 client.close()

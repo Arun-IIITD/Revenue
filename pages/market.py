@@ -1,7 +1,6 @@
 import base64
 import os
 from io import BytesIO
-#from streamlit_extras.switch_page_button import switch_page
 from statistics import mean
 import streamlit as st
 import pandas as pd

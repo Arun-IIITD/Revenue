@@ -202,13 +202,13 @@ def main():
     view_option = st.selectbox("Select View", ['Yearly', 'Monthly','Weekly','Daily'])
     data['Business Date'] = pd.to_datetime(data['Business Date'])
 
-    # if view_option == 'Daily':
-    #     daily_data = data.groupby(data['Business Date'].dt.date).agg({
-    #     'Room Revenue': 'sum',
-    #     'Rooms Sold': 'sum'
-    #     }).reset_index()
-    #     daily_data.rename(columns={'Business Date': 'Date'}, inplace=True)
-    #     st.write(daily_data.reset_index(drop=True))
+    if view_option == 'Daily':
+           daily_data = data.groupby(data['Business Date'].dt.date).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
+    #daily_data.rename(columns={'Business Date': 'Date'}, inplace=True)
+    
+    # Displaying the result in Streamlit without the index
+           st.dataframe(daily_data)
+        
         
    
 

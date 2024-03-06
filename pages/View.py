@@ -190,10 +190,16 @@ def main():
     data5 = pd.DataFrame(list(cursor5))
     data5 = data5.drop_duplicates() 
     #--------------------------------------
+    
+    data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
+    data2 = data5[['Business Date','Room Revenue','Rooms Sold']]
+    data = pd.concat([data1,data2],ignore_index=True)
+    print(len(data))
+    print(data)
     #---------------------------------------------------------------------------
-   #YEARLY, MONTH, DAILY AND WEEKLY VIEW
+    #YEARLY, MONTH, DAILY AND WEEKLY VIEW
     st.subheader("VIEW")
-    # data4 = data4.drop_duplicates() 
+    view_option = st.selectbox("Select View", ['Yearly', 'Monthly','Weekly','Daily'])
     # data4['Business Date'] = pd.to_datetime(data4['Business Date'])
     # data4['Month_Year'] = data4['Business Date'].dt.to_period('M')
     # data4_monthly = data4.groupby('Month_Year').sum()  
@@ -210,24 +216,8 @@ def main():
     # data4_weekly.index = data4_weekly.index.to_timestamp()
     # data4_weekly['Week'] = data4_weekly.index.strftime('%U_%Y')
     
-    # data5 = data5.drop_duplicates() 
-    # data5['Business Date'] = pd.to_datetime(data5['Business Date'])
-    # data5['Month_Year'] = data5['Business Date'].dt.to_period('M')
-    # data5_monthly = data5.groupby('Month_Year').sum()  
-    # data5_monthly.index = data5_monthly.index.to_timestamp()
-    # data5_monthly['Month_Year'] = data5_monthly.index.strftime('%B_%Y')
-    # data5['Business Date'] = pd.to_datetime(data5['Business Date'])
-    # data5['Business Date'] = data5['Business Date'].dt.date
-    # data5['Business Date'] = pd.to_datetime(data5['Business Date'])
-    # data5['Year'] = data5['Business Date'].dt.to_period('Y')
-    # data5_yearly = data5.groupby('Year').sum()
-    # data5_yearly['Year'] = data5_yearly.index.astype(str)
-    # data5['Week'] = data5['Business Date'].dt.to_period('W')
-    # data5_weekly = data5.groupby('Week').sum()
-    # data5_weekly.index = data5_weekly.index.to_timestamp()
-    # data5_weekly['Week'] = data5_weekly.index.strftime('%U_%Y')
+   
 
-    # view_option = st.selectbox("Select View", ['Yearly', 'Monthly','Weekly','Daily'])
 
     # if view_option == 'Daily':
     #     st.write("Daily View")

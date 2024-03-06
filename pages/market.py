@@ -282,11 +282,21 @@ def main():
     collection4 = db["Accuracy"]
     cursor4 = collection4.find({})
     data4 = pd.DataFrame(list(cursor4))
-    data4 = data4.drop_duplicates() 
+    data4 = data4.drop_duplicates()
+    #print(len(data4)) 
+
     collection5 = db["Revenue"]
     cursor5 = collection5.find({})
     data5 = pd.DataFrame(list(cursor5))
     data5 = data5.drop_duplicates() 
+    #print(len(data5))
+
+    data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
+    data2 = data5[['Business Date','Room Revenue','Rooms Sold']]
+    data = pd.concat([data1,data2],ignore_index=True)
+    print(len(data))
+    print(data)
+
     #--------------------------------------
     #SELCT MONTH AND YEAR
     selected_month = st.selectbox('Select Month', range(1, 13), format_func=lambda x: calendar.month_name[x])
@@ -295,15 +305,16 @@ def main():
     previous_year = st.selectbox('Select previous year:', years)
 
     #FOR ROOM REVENUE AND ROOM SOLD
-    current_year_data4 = data4[(data4['Business Date'].dt.month == selected_month) & (data4['Business Date'].dt.year == current_year)]
-    previous_year_data4 = data4[(data4['Business Date'].dt.month == selected_month) & (data4['Business Date'].dt.year == previous_year)]
+    data['Business Date'] = pd.to_datetime(data['Business Date'])
+    current_year_data4 = data[(data['Business Date'].dt.month == selected_month) & (data['Business Date'].dt.year == current_year)]
+    previous_year_data4 = data[(data['Business Date'].dt.month == selected_month) & (data['Business Date'].dt.year == previous_year)]
     current_year_revenue = current_year_data4['Room Revenue']
     previous_year_revenue = previous_year_data4['Room Revenue']
     current_room_sold = current_year_data4['Rooms Sold']
     previous_year_room_sold = previous_year_data4['Rooms Sold']
     dates = current_year_data4['Business Date']
 
-    #FOR PLOTTING GRAPH
+    # #FOR PLOTTING GRAPH
     st.subheader("Room Revenue Comparison")
     col1,col2 = st.columns(2)
     with col1:

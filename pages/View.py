@@ -203,15 +203,18 @@ def main():
     data['Business Date'] = pd.to_datetime(data['Business Date'])
 
     if view_option == 'Daily':
-           daily_data = data.groupby(data['Business Date'].dt.date).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
-    #daily_data.rename(columns={'Business Date': 'Date'}, inplace=True)
-    
-    # Displaying the result in Streamlit without the index
-           st.dataframe(daily_data)
-        
-        
-   
+        daily_data = data.groupby(data['Business Date'].dt.date).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
+    elif view_option == 'Monthly':
+        daily_data = data.groupby(data['Business Date'].dt.to_period('M')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
+    #grouped_data.rename(columns={'Business Date': 'Month'}, inplace=True)
+    elif view_option == 'Weekly':
+        daily_data = data.groupby(data['Business Date'].dt.to_period('W')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
+    #grouped_data.rename(columns={'Business Date': 'Week'}, inplace=True)
+    elif view_option == 'Yearly':
+        daily_data = data.groupby(data['Business Date'].dt.year).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
+    #grouped_data.rename(columns={'Business Date': 'Year'}, inplace=True)
 
+    st.dataframe(daily_data)
 
 
 if __name__ == '__main__':

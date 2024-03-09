@@ -26,21 +26,22 @@ db = client[database_name]
 collection4 = db["Accuracy"]
 cursor4 = collection4.find({})
 data4 = pd.DataFrame(list(cursor4))
-
-data4 = data4[['Business Date','Room Revenue']]
+data4 = data4.drop_duplicates() 
+collection5 = db["Revenue"]
+cursor5 = collection5.find({})
+data5 = pd.DataFrame(list(cursor5))
+data5 = data5.drop_duplicates() 
+data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
+data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
+data = pd.concat([data1,data2],ignore_index=True)
+data4 = data[['Business Date','Room Revenue']]
 data4.columns = ['ds','y'] 
-
 data4 = data4.drop_duplicates()  
-# train_data = data4.iloc[:760]
-# print(train_data)
-# test_data_for_next_7_days = data4.iloc[760:767]
-# test_data_for_next_14_days = data4.iloc[767:774]
-# test_data_for_next_21_days = data4.iloc[774:781]
-train_data = data4.iloc[:850]
-print(train_data)
-test_data_for_next_7_days = data4.iloc[850:857]
-test_data_for_next_14_days = data4.iloc[857:864]
-test_data_for_next_21_days = data4.iloc[864:871]
+print(len(data4))
+train_data = data4.iloc[:844]
+test_data_for_next_7_days = data4.iloc[844:851]
+test_data_for_next_14_days = data4.iloc[851:858]
+test_data_for_next_21_days = data4.iloc[858:865]
 
 def model_rev():
 #FOR 1st 7 DAYS(1-7)

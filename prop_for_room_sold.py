@@ -5,7 +5,6 @@ from statistics import mean
 import pymongo
 import numpy as np
 
-
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
@@ -13,21 +12,22 @@ db = client[database_name]
 collection4 = db["Accuracy"]
 cursor4 = collection4.find({})
 data4 = pd.DataFrame(list(cursor4))
-data4 = data4[['Business Date','Rooms Sold']]
-data4.columns = ['ds','y']    
-
+data4 = data4.drop_duplicates() 
+collection5 = db["Revenue"]
+cursor5 = collection5.find({})
+data5 = pd.DataFrame(list(cursor5))
+data5 = data5.drop_duplicates() 
+data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
+data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
+data = pd.concat([data1,data2],ignore_index=True)
+data4 = data[['Business Date','Rooms Sold']]
+data4.columns = ['ds','y'] 
 data4 = data4.drop_duplicates()  
-# train_data = data4.iloc[:850]
-# test_data_for_next_7_days = data4.iloc[760:767]
-# test_data_for_next_14_days = data4.iloc[767:774]
-# test_data_for_next_21_days = data4.iloc[774:781]
-train_data = data4.iloc[500:852]
-print(train_data)
-test_data_for_next_7_days = data4.iloc[852:859]
-test_data_for_next_14_days = data4.iloc[859:866]
-test_data_for_next_21_days = data4.iloc[866:873]
-
-
+print(len(data4))
+train_data = data4.iloc[:844]
+test_data_for_next_7_days = data4.iloc[844:851]
+test_data_for_next_14_days = data4.iloc[851:858]
+test_data_for_next_21_days = data4.iloc[858:865]
 
 def model_R():
     # Room sold for first 7 days(0-7)

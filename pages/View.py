@@ -192,29 +192,37 @@ def main():
     #--------------------------------------
     
     data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
-    data2 = data5[['Business Date','Room Revenue','Rooms Sold']]
+    data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
     data = pd.concat([data1,data2],ignore_index=True)
     print(len(data))
     print(data)
     #---------------------------------------------------------------------------
+
+
+
     #YEARLY, MONTH, DAILY AND WEEKLY VIEW
     st.subheader("VIEW")
     view_option = st.selectbox("Select View", ['Yearly', 'Monthly','Weekly','Daily'])
     data['Business Date'] = pd.to_datetime(data['Business Date'])
 
     if view_option == 'Daily':
-        daily_data = data.groupby(data['Business Date'].dt.date).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
+        daily_data = data.groupby(data['Business Date'].dt.date).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
     elif view_option == 'Monthly':
-        daily_data = data.groupby(data['Business Date'].dt.to_period('M')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
-    #grouped_data.rename(columns={'Business Date': 'Month'}, inplace=True)
+        data['Month-Year'] = data['Business Date'].dt.strftime('%Y-%m')
+        daily_data = data.groupby('Month-Year').agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
+        #daily_data = data.groupby(data['Business Date'].dt.to_period('M')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
+        daily_data.rename(columns={'Business Date': 'Month'}, inplace=True)
     elif view_option == 'Weekly':
-        daily_data = data.groupby(data['Business Date'].dt.to_period('W')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
-    #grouped_data.rename(columns={'Business Date': 'Week'}, inplace=True)
+        daily_data = data.groupby(data['Business Date'].dt.to_period('W')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
+        daily_data.rename(columns={'Business Date': 'Week'}, inplace=True)
     elif view_option == 'Yearly':
-        daily_data = data.groupby(data['Business Date'].dt.year).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
-    #grouped_data.rename(columns={'Business Date': 'Year'}, inplace=True)
+        daily_data = data.groupby(data['Business Date'].dt.year).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
+        daily_data.rename(columns={'Business Date': 'Year'}, inplace=True)
 
     st.dataframe(daily_data)
+
+
+
 
 
 if __name__ == '__main__':

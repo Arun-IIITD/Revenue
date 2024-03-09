@@ -669,41 +669,41 @@ def main():
 
 
     #ARRIVAL ROOMS
-    # st.subheader("Predicted vs Actual Arrival Rooms")
-    # col5,col6 = st.columns(2)
-    # import prop_for_Arrival_rooms as afs
-    # #PLOT FOR FIRST 7 DAYS ARRIVAL ROOMS
-    # with col5:
-    #     Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = afs.model_A()
-    #     df_7_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-    #     plot_arrival_rooms(df_7_days_Arrival_rooms['Date'], df_7_days_Arrival_rooms['Actual'], df_7_days_Arrival_rooms['Date'], df_7_days_Arrival_rooms['Predicted'], 'For 0-07 Days')
-    #     st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-    #     st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
-    #     st.write(f"MAE: {(mae1)}")
-    #     st.markdown("---")
+    st.subheader("Predicted vs Actual Arrival Rooms")
+    col5,col6 = st.columns(2)
+    import prop_for_Arrival_rooms as afs
+    #PLOT FOR FIRST 7 DAYS ARRIVAL ROOMS
+    with col5:
+        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = afs.model_A()
+        df_7_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
+        plot_arrival_rooms(df_7_days_Arrival_rooms['Date'], df_7_days_Arrival_rooms['Actual'], df_7_days_Arrival_rooms['Date'], df_7_days_Arrival_rooms['Predicted'], 'For 0-07 Days')
+        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
+        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
+        st.write(f"MAE: {(mae1)}")
+        st.markdown("---")
     
-    # #PLOT FOR 08-14 DAYS ARRIVAL ROOMS
-    # with col6:
-    #     #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = afs.model_A()
-    #     df_14_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-    #     plot_arrival_rooms(df_14_days_Arrival_rooms['Date'], df_14_days_Arrival_rooms['Actual'], df_14_days_Arrival_rooms['Date'], df_14_days_Arrival_rooms['Predicted'], 'For 08-14 Days')
-    #     st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-    #     st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
-    #     st.write(f"MAE: {(mae2)}")
-    #     st.markdown("---")
+    #PLOT FOR 08-14 DAYS ARRIVAL ROOMS
+    with col6:
+        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = afs.model_A()
+        df_14_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
+        plot_arrival_rooms(df_14_days_Arrival_rooms['Date'], df_14_days_Arrival_rooms['Actual'], df_14_days_Arrival_rooms['Date'], df_14_days_Arrival_rooms['Predicted'], 'For 08-14 Days')
+        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
+        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
+        st.write(f"MAE: {(mae2)}")
+        st.markdown("---")
     
-    # #PLOT FOR 15-21 DAYS ARRIVAL ROOMS
-    # with col5:
-    #     #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = afs.model_A()
-    #     df_21_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-    #     plot_arrival_rooms(df_21_days_Arrival_rooms['Date'], df_21_days_Arrival_rooms['Actual'], df_21_days_Arrival_rooms['Date'], df_21_days_Arrival_rooms['Predicted'], 'For 15-21 Days')
-    #     st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-    #     st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
-    #     st.write(f"MAE: {(mae3)}")
-    #     st.markdown("---")
+    #PLOT FOR 15-21 DAYS ARRIVAL ROOMS
+    with col5:
+        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = afs.model_A()
+        df_21_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
+        plot_arrival_rooms(df_21_days_Arrival_rooms['Date'], df_21_days_Arrival_rooms['Actual'], df_21_days_Arrival_rooms['Date'], df_21_days_Arrival_rooms['Predicted'], 'For 15-21 Days')
+        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
+        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
+        st.write(f"MAE: {(mae3)}")
+        st.markdown("---")
 
-    # with col5:
-    #     plot_month_data_rooms(merged_data)
+    with col5:
+        plot_month_data_rooms(merged_data)
 
     
     

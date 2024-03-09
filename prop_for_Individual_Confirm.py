@@ -22,15 +22,25 @@ connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 db = client[database_name] 
+collection4 = db["Accuracy"]
+cursor4 = collection4.find({})
+data4 = pd.DataFrame(list(cursor4))
+data4 = data4.drop_duplicates() 
 collection5 = db["Revenue"]
 cursor5 = collection5.find({})
 data5 = pd.DataFrame(list(cursor5))
-data5 = data5[['Business Date','Individual Confirm']]
-data5.columns = ['ds','y']
-train_data = data5.iloc[:323]
-test_data_for_next_7_days = data5.iloc[323:330]
-test_data_for_next_14_days = data5.iloc[330:337]
-test_data_for_next_21_days = data5.iloc[337:344]
+data5 = data5.drop_duplicates() 
+data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
+data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
+data = pd.concat([data1,data2],ignore_index=True)
+data4 = data[['Business Date','Individual Confirm']]
+data4.columns = ['ds','y'] 
+data4 = data4.drop_duplicates()  
+print(len(data4))
+train_data = data4.iloc[:844]
+test_data_for_next_7_days = data4.iloc[844:851]
+test_data_for_next_14_days = data4.iloc[851:858]
+test_data_for_next_21_days = data4.iloc[858:865]
 
 def model_IC():
     model = Prophet(
@@ -154,14 +164,14 @@ def model_IC():
     mae3 = np.mean(absolute_diff3)
 
      # Convert 'ds' to datetime
-    data5['ds'] = pd.to_datetime(data5['ds'])
+    data4['ds'] = pd.to_datetime(data4['ds'])
 
     # Extract year and month
-    data5['Year'] = data5['ds'].dt.year
-    data5['Month'] = data5['ds'].dt.strftime('%B')  # Month in full name
+    data4['Year'] = data4['ds'].dt.year
+    data4['Month'] = data4['ds'].dt.strftime('%B')  # Month in full name
 
     # Filter for the year 2023
-    data_2023 = data5[data5['Year'] == 2023]
+    data_2023 = data4[data4['Year'] == 2023]
 
     # Define the month order
     month_order = [
@@ -177,7 +187,11 @@ def model_IC():
 
     return  Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
-print(model_IC())
+arr = model_IC()
+
+print(arr[2])
+print(arr[5])
+print(arr[8])
 
 
 

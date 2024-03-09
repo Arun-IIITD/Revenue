@@ -22,7 +22,9 @@ data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Indi
 data = pd.concat([data1,data2],ignore_index=True)
 data4 = data[['Business Date','Rooms Sold']]
 data4.columns = ['ds','y'] 
+data4['ds'] = pd.to_datetime(data4['ds'])
 data4 = data4.drop_duplicates()  
+data4 = data4.sort_values(by='ds')
 print(len(data4))
 train_data = data4.iloc[:844]
 test_data_for_next_7_days = data4.iloc[844:851]

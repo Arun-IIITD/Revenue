@@ -197,6 +197,18 @@ def main():
     print(len(data))
     print(data)
     #---------------------------------------------------------------------------
+    st.subheader("Select Date Range for Analysis")
+    start_date, end_date = st.date_input("Select Date Range", [])
+    
+    # Assuming 'data' is your DataFrame containing a 'Business Date' datetime column
+    data['Business Date'] = pd.to_datetime(data['Business Date'])
+    
+    if start_date and end_date:
+        filtered_data = data[(data['Business Date'] >= pd.to_datetime(start_date)) & (data['Business Date'] <= pd.to_datetime(end_date))]
+        # Proceed with your analysis or visualization on filtered_data
+        st.write("Filtered Data", filtered_data)  # Placeholder for further operations on filtered_data
+    else:
+        st.write("Select a date range to see the data.")
 
 
 

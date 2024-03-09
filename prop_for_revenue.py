@@ -36,10 +36,13 @@ data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Indi
 data = pd.concat([data1,data2],ignore_index=True)
 data4 = data[['Business Date','Room Revenue']]
 data4.columns = ['ds','y'] 
+data4['ds'] = pd.to_datetime(data4['ds'])
 data4 = data4.drop_duplicates()  
-print(len(data4))
+data4 = data4.sort_values(by='ds')
 train_data = data4.iloc[:844]
+print(train_data)
 test_data_for_next_7_days = data4.iloc[844:851]
+print(test_data_for_next_7_days)
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]
 
@@ -198,7 +201,8 @@ def model_rev():
     return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
 arr = model_rev()
-
+print(arr[0])
+print(arr[1])
 print(arr[2])
 print(arr[5])
 print(arr[8])

@@ -595,12 +595,16 @@ def main():
     import prop_for_revenue as rfs
     #PLOT FOR FIRST 7 DAYS ROOM REVENUE
     with col1:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = rfs.model_rev()
+        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data,fig1,fig2 = rfs.model_rev()
         df_7_days_rev = pd.DataFrame({'Date': rfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
         plot_revenue(df_7_days_rev['Date'], df_7_days_rev['Actual'], df_7_days_rev['Date'], df_7_days_rev['Predicted'], 'For 0-07 Days')
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
         st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
         st.write(f"MAE: {(mae1)}")
+        # st.title('Forecast Results')
+        # st.write('### Forecast Plot')
+        # st.pyplot(fig1)
+        # st.pyplot(fig2)
         st.markdown("---")
     
     #PLOT FOR 08-14 DAYS ROOM REVENUE

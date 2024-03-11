@@ -7,7 +7,8 @@
 # 15 - 21 Days: 90% +
 
 from statistics import mean
-
+from prophet.plot import plot_plotly, plot_components_plotly
+from prophet.plot import plot, plot_components
 import holidays
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -58,9 +59,16 @@ def model_rev():
                             yearly_seasonality = True,
                             interval_width=0.95
                             )
+    model.add_seasonality(name='monthly', period=30.5, fourier_order=5)
     model.fit(train_data)
     future_for_7_days = model.make_future_dataframe(periods=7, freq='D', include_history=False)
     forecast = model.predict(future_for_7_days)
+    plot_plotly(model, forecast)  # To plot the forecast
+    plot_components_plotly(model, forecast)  # To plot the forecast components
+    fig1 = plot(model, forecast)
+    fig2 = plot_components(model, forecast)
+    
+    
     next_7_days = forecast.tail(7)
     Actual_for_7_days =  []
     Predicted_for_7_days = []
@@ -70,6 +78,8 @@ def model_rev():
         j = int(j)
         Actual_for_7_days.append(i)
         Predicted_for_7_days.append(j)
+
+
 
     tp_for_7_days = 0
     fn_for_7_days = 0
@@ -198,7 +208,7 @@ def model_rev():
 
 
 
-    return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
+    return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data,fig1,fig2
 
 arr = model_rev()
 print(arr[0])
@@ -206,6 +216,15 @@ print(arr[1])
 print(arr[2])
 print(arr[5])
 print(arr[8])
+
+'''plot_plotly(model, forecast)  # To plot the forecast
+plot_components_plotly(model, forecast)  # To plot the forecast components
+fig1 = plot(model, forecast)
+fig2 = plot_components(model, forecast)
+model = Prophet()
+model.add_seasonality(name='monthly', period=30.5, fourier_order=5)
+model.fit(df)'''
+
 
 
 

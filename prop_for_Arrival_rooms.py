@@ -40,7 +40,7 @@ data4 = data4.drop_duplicates()
 data4 = data4.sort_values(by='ds')
 data4 = data4.drop_duplicates()  
 print(len(data4))
-train_data = data4.iloc[:844]
+train_data = data4.iloc[516:844]
 test_data_for_next_7_days = data4.iloc[844:851]
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]

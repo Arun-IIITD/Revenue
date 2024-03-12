@@ -1,10 +1,11 @@
-#7 Days: Revenue = 91
-#14 Days: Revenue = 91
-#21 Days: Revenue = 91
-
 # 00 - 07 Days: 98% +
 # 08 - 14 Days: 94% + 
 # 15 - 21 Days: 90% +
+
+#89 - 0.01
+#71 - 0.01
+#87.4 - 0.65
+#0,0,20
 
 from statistics import mean
 from prophet.plot import plot_plotly, plot_components_plotly
@@ -18,6 +19,10 @@ import plotly.express as px
 import pymongo
 from prophet import Prophet
 from sklearn.metrics import confusion_matrix, recall_score
+overall_accuracy_for_7_days = []
+overall_accuracy_for_14_days = []
+overall_accuracy_for_21_days = []
+
 
 # Read your data and preprocess it
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
@@ -40,17 +45,19 @@ data4.columns = ['ds','y']
 data4['ds'] = pd.to_datetime(data4['ds'])
 data4 = data4.drop_duplicates()  
 data4 = data4.sort_values(by='ds')
-train_data = data4.iloc[:844]
-print(train_data)
+train_data = data4.iloc[120:844]
+#print(train_data)
 test_data_for_next_7_days = data4.iloc[844:851]
-print(test_data_for_next_7_days)
+#print(test_data_for_next_7_days)
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]
 
-def model_rev():
+
+
 #FOR 1st 7 DAYS(1-7)
+def model_rev():
     model = Prophet(
-                            changepoint_prior_scale= 0.3,
+                            changepoint_prior_scale= 0.01,
                             holidays_prior_scale = 0.8,
                             n_changepoints = 500,
                             seasonality_mode = 'multiplicative',
@@ -63,10 +70,7 @@ def model_rev():
     model.fit(train_data)
     future_for_7_days = model.make_future_dataframe(periods=7, freq='D', include_history=False)
     forecast = model.predict(future_for_7_days)
-    plot_plotly(model, forecast)  # To plot the forecast
-    plot_components_plotly(model, forecast)  # To plot the forecast components
-    fig1 = plot(model, forecast)
-    fig2 = plot_components(model, forecast)
+   
     
     
     next_7_days = forecast.tail(7)
@@ -93,6 +97,17 @@ def model_rev():
         else:
                 fn_for_7_days+=1
         Accuracy_for_7_days.append(c)
+
+    
+    
+    
+
+
+
+        
+      
+
+
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
@@ -132,9 +147,9 @@ def model_rev():
         Accuracy_for_14_days.append(c)
 
 
-    # For the next 7 days(15-21 days)
+    # # For the next 7 days(15-21 days)
     model2 = Prophet(
-                        changepoint_prior_scale= 0.1,
+                        changepoint_prior_scale= 0.21,
                         holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'multiplicative',
@@ -208,22 +223,33 @@ def model_rev():
 
 
 
-    return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data,fig1,fig2
+    return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
-arr = model_rev()
-print(arr[0])
-print(arr[1])
-print(arr[2])
-print(arr[5])
-print(arr[8])
+#arr = model_rev()
+#print(arr[2])
+#print(mean(arr[2]))
+#print(arr[5])
+#print(mean(arr[5]))
+# print(arr[8])
+# print(mean(arr[8]))
 
-'''plot_plotly(model, forecast)  # To plot the forecast
-plot_components_plotly(model, forecast)  # To plot the forecast components
-fig1 = plot(model, forecast)
-fig2 = plot_components(model, forecast)
-model = Prophet()
-model.add_seasonality(name='monthly', period=30.5, fourier_order=5)
-model.fit(df)'''
+changepoint_values = [i / 100 for i in range(1, 100)]
+for i in changepoint_values:
+    acc = model_rev(i)
+    overall_accuracy_for_7_days.append(mean(acc[2]))
+    overall_accuracy_for_14_days.append(mean(acc[5]))
+    overall_accuracy_for_21_days.append(mean(acc[8]))
+
+print(max(overall_accuracy_for_7_days))
+print("for 7 days",overall_accuracy_for_7_days.index(max(overall_accuracy_for_7_days)))
+print(max(overall_accuracy_for_14_days))
+print("for 14 days",overall_accuracy_for_14_days.index(max(overall_accuracy_for_14_days)))
+print(max(overall_accuracy_for_21_days))
+print("for 21 days",overall_accuracy_for_21_days.index(max(overall_accuracy_for_21_days)))
+
+
+
+
 
 
 

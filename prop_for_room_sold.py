@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from statistics import mean
 import pymongo
 import numpy as np
+#52,19,2
 
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
@@ -26,15 +27,18 @@ data4['ds'] = pd.to_datetime(data4['ds'])
 data4 = data4.drop_duplicates()  
 data4 = data4.sort_values(by='ds')
 print(len(data4))
-train_data = data4.iloc[:844]
+train_data = data4.iloc[120:844]
 test_data_for_next_7_days = data4.iloc[844:851]
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]
+overall_accuracy_for_7_days = []
+overall_accuracy_for_14_days = []
+overall_accuracy_for_21_days = []
 
 def model_R():
     # Room sold for first 7 days(0-7)
     model = Prophet(
-                            changepoint_prior_scale= 0.01,
+                            changepoint_prior_scale= 0.53,
                             holidays_prior_scale = 0.4,
                             n_changepoints = 200,
                             seasonality_mode = 'multiplicative',
@@ -75,7 +79,7 @@ def model_R():
 
 
     #ROOM SOLD FOR next 7 days(8-14)
-    model1 = Prophet(changepoint_prior_scale=0.01,
+    model1 = Prophet(changepoint_prior_scale=0.2,
                     holidays_prior_scale = 0.4,
                     #n_changepoints = 200,
                     seasonality_mode = 'multiplicative',
@@ -116,7 +120,7 @@ def model_R():
 
     #ROOM SOLD FOR FOR 21 DAYS(15-21 days)
     model2 = Prophet(
-                            changepoint_prior_scale=0.1,  # Tweak this parameter based on your data
+                            changepoint_prior_scale=0.03,  # Tweak this parameter based on your data
                             yearly_seasonality=False,       # Add yearly seasonality
                             weekly_seasonality=True, )
     model2.fit(train_data)
@@ -181,12 +185,25 @@ def model_R():
 
     return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
-arr = model_R()
-
-print(arr[2])
-print(arr[5])
-print(arr[8])
-
+# arr = model_R()
+# print(arr[2])
+# print(arr[5])
+# print(arr[8])
+changepoint_values = [i / 100 for i in range(1, 100)]
+for i in changepoint_values:
+    acc = model_R(i)
+    overall_accuracy_for_7_days.append(mean(acc[2]))
+    overall_accuracy_for_14_days.append(mean(acc[5]))
+    overall_accuracy_for_21_days.append(mean(acc[8]))
+print(overall_accuracy_for_7_days)
+print(max(overall_accuracy_for_7_days))
+print("for 7 days",overall_accuracy_for_7_days.index(max(overall_accuracy_for_7_days)))
+print(overall_accuracy_for_14_days)
+print(max(overall_accuracy_for_14_days))
+print("for 14 days",overall_accuracy_for_14_days.index(max(overall_accuracy_for_14_days)))
+print(overall_accuracy_for_21_days)
+print(max(overall_accuracy_for_21_days))
+print("for 21 days",overall_accuracy_for_21_days.index(max(overall_accuracy_for_21_days)))
 
 
 

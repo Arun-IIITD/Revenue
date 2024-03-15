@@ -113,7 +113,6 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
             <a style="color: {'red' if selected_page == 'market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
             <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
-            <a style="color: {'red' if selected_page == 'Trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Trend' else 'none'}" href="/Trend" target="_self">Trend</a>
         </div>
     </div>
     """
@@ -131,8 +130,7 @@ url_to_page = {
     "/Prediction": "Prediction",
     "/upload": "Upload",
     "/market": "market",
-    "/View": "View",
-    "/Trend": "Trend",
+      "/View": "View",
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)
@@ -597,7 +595,7 @@ def main():
     import prop_for_revenue as rfs
     #PLOT FOR FIRST 7 DAYS ROOM REVENUE
     with col1:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = rfs.model_rev()
+        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data,fig1,fig2 = rfs.model_rev()
         df_7_days_rev = pd.DataFrame({'Date': rfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
         plot_revenue(df_7_days_rev['Date'], df_7_days_rev['Actual'], df_7_days_rev['Date'], df_7_days_rev['Predicted'], 'For 0-07 Days')
         st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
@@ -654,7 +652,7 @@ def main():
         #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = pfs.model_R()
         df_14_days_room_sales = pd.DataFrame({'Date': pfs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
         plot_room_sold(df_14_days_room_sales['Date'], df_14_days_room_sales['Actual'], df_14_days_room_sales['Date'], df_14_days_room_sales['Predicted'], 'For 08-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))+1}%")
+        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
         st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
         st.write(f"MAE: {(mae2)}")
         st.markdown("---")

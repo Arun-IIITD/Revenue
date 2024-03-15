@@ -17,9 +17,6 @@ import plotly.express as px
 import pymongo
 from prophet import Prophet
 from sklearn.metrics import confusion_matrix, recall_score
-overall_accuracy_for_7_days = []
-overall_accuracy_for_14_days = []
-overall_accuracy_for_21_days = []
 
 connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
@@ -43,7 +40,7 @@ data4 = data4.drop_duplicates()
 data4 = data4.sort_values(by='ds')
 data4 = data4.drop_duplicates()  
 print(len(data4))
-train_data = data4.iloc[512:844]
+train_data = data4.iloc[516:844]
 test_data_for_next_7_days = data4.iloc[844:851]
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]
@@ -51,7 +48,7 @@ test_data_for_next_21_days = data4.iloc[858:865]
 #FOR 1st 7 DAYS(1-7)
 def model_A():
     model = Prophet(
-                            changepoint_prior_scale= 0.01,
+                            changepoint_prior_scale= 0.1,
                             holidays_prior_scale = 0.8,
                             n_changepoints = 200,
                             seasonality_mode = 'multiplicative',
@@ -89,7 +86,7 @@ def model_A():
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 2.1,
+                        changepoint_prior_scale= 0.1,
                         holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'additive',
@@ -117,7 +114,6 @@ def model_A():
         c = abs(i-j)
         c = c*100/i
         c  = 100-c
-        c = abs(c)
         c= int(c)
         if c >90:
             tp_for_14_days += 1
@@ -128,7 +124,7 @@ def model_A():
 
     # For the next 7 days(15-21 days)
     model2 = Prophet(
-                        changepoint_prior_scale= 0.01,
+                        changepoint_prior_scale= 0.1,
                         #holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'multiplicative',
@@ -155,7 +151,7 @@ def model_A():
         c = abs(i-j)
         c = c*100/i
         c  = 100-c
-        c= abs(int(c))
+        c= int(c)
         if c >= 90:
             tp_for_21_days +=1
         else:
@@ -198,31 +194,13 @@ def model_A():
 
 
     return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
-arr = model_A()
-print(arr[6])
-print(arr[7])
-print(arr[8])
-#print(mean(arr[5]))
-print(mean(arr[8]))
 
-# changepoint_values = [i / 100 for i in range(1, 100)]
-# for i in changepoint_values:
-#     acc = model_A(i)
-#     overall_accuracy_for_7_days.append(mean(acc[2]))
-#     overall_accuracy_for_14_days.append(mean(acc[5]))
-#     overall_accuracy_for_21_days.append(mean(acc[8]))
-# overall_accuracy_for_7_days = [round(ele) for ele in overall_accuracy_for_7_days]
-# #print(overall_accuracy_for_7_days)
-# print(round(max(overall_accuracy_for_7_days)))
-# print((overall_accuracy_for_7_days.index(max(overall_accuracy_for_7_days))/100)+0.01)
-# overall_accuracy_for_14_days = [round(ele) for ele in overall_accuracy_for_14_days]
-# #print(overall_accuracy_for_14_days)
-# print(round(max(overall_accuracy_for_14_days)))
-# print((overall_accuracy_for_14_days.index(max(overall_accuracy_for_14_days))/100)+0.01)
-# overall_accuracy_for_21_days = [round(ele) for ele in overall_accuracy_for_21_days]
-# #print(overall_accuracy_for_21_days)
-# print(round(max(overall_accuracy_for_21_days)))
-# print((overall_accuracy_for_21_days.index(max(overall_accuracy_for_21_days)) /100)+0.01)
+#print(model_A())
+arr = model_A()
+
+print(arr[2])
+print(arr[5])
+print(arr[8])
 
 
 

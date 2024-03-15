@@ -40,14 +40,14 @@ data4 = data4.drop_duplicates()
 data4 = data4.sort_values(by='ds')
 data4 = data4.drop_duplicates()  
 print(len(data4))
-train_data = data4.iloc[512:844]
+train_data = data4.iloc[:844]
 test_data_for_next_7_days = data4.iloc[844:851]
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]
 
 #FOR 1st 7 DAYS(1-7)
 def model_IR():
-    model = Prophet(changepoint_prior_scale= 0.01,
+    model = Prophet(changepoint_prior_scale= 0.3,
                             holidays_prior_scale = 0.8,
                             n_changepoints = 500,
                             seasonality_mode = 'multiplicative',
@@ -85,14 +85,15 @@ def model_IR():
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 0.01,
+                        changepoint_prior_scale= 0.1,
                         holidays_prior_scale = 0.4,
-                        n_changepoints = 200,
+                        #n_changepoints = 120,
                         seasonality_mode = 'additive',
                         weekly_seasonality=True,
                         daily_seasonality = True,
                         yearly_seasonality = True,
-                        interval_width=0.5)
+                        #interval_width=0.5
+                        )
     model1.fit(train_data)
     future_for_14_days = model1.make_future_dataframe(periods=7, freq='D', include_history=False)
     forecast1 = model1.predict(future_for_14_days)
@@ -123,7 +124,7 @@ def model_IR():
 
     # For the next 7 days(15-21 days)
     model2 = Prophet(
-                        changepoint_prior_scale= 0.71,
+                        changepoint_prior_scale= 0.1,
                         holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'multiplicative',

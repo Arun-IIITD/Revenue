@@ -132,7 +132,6 @@ url_to_page = {
     "/upload": "Upload",
     "/market": "market",
     "/View": "View",
-    "/Trend": "Trend",
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)

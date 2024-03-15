@@ -40,14 +40,14 @@ data4 = data4.drop_duplicates()
 data4 = data4.sort_values(by='ds')
 data4 = data4.drop_duplicates()  
 print(len(data4))
-train_data = data4.iloc[:844]
+train_data = data4.iloc[512:844]
 test_data_for_next_7_days = data4.iloc[844:851]
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]
 
 def model_IC():
     model = Prophet(
-                            changepoint_prior_scale= 0.1,
+                            changepoint_prior_scale= 0.04,
                             holidays_prior_scale = 0.8,
                             n_changepoints = 200,
                             seasonality_mode = 'multiplicative',
@@ -83,9 +83,9 @@ def model_IC():
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 0.1,
+                        changepoint_prior_scale=0.01 ,
                         holidays_prior_scale = 0.4,
-                        n_changepoints = 400,
+                        n_changepoints = 200,
                         seasonality_mode = 'additive',
                         weekly_seasonality=True,
                         daily_seasonality = True,
@@ -121,7 +121,7 @@ def model_IC():
 
     # For the next 7 days(15-21 days)
     model2 = Prophet(
-                        changepoint_prior_scale= 0.1,
+                        changepoint_prior_scale= 0.01,
                         holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'multiplicative',

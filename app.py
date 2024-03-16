@@ -101,7 +101,7 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
             <a style="color: {'red' if selected_page == 'Market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
              <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
-        
+             <a style="color: {'red' if selected_page == 'trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'trend' else 'none'}" href="/trend" target="_self">trend</a>
     </div>
     """
     st.markdown(custom_top_bar, unsafe_allow_html=True)
@@ -124,6 +124,9 @@ url_to_page = {
     "/upload": "Upload",
     "/market": "market",
     "/View": "View",
+    "/trend": "trend",
+
+    
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)

@@ -493,6 +493,7 @@ def main():
     data = data.sort_values(by='ds')
     train_data = data.iloc[520:844]
     test_data_for_21_days = data.iloc[844:865]
+    
  
     st.subheader('INDIVIDUAL REVENUE')
     st.subheader('Forecast without Tuning ')

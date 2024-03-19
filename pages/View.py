@@ -226,22 +226,51 @@ def main():
     st.subheader("VIEW")
     view_option = st.selectbox("Select View", ['Yearly', 'Monthly','Weekly','Daily'])
     data['Business Date'] = pd.to_datetime(data['Business Date'])
+    # data = pd.DataFrame({
+    # 'Business Date': pd.date_range(start='2022-01-01', end='2024-01-18',freq='D'),
+    # 'Room Revenue': np.random.randint(100000, 2000000, size=100000)})
 
     if view_option == 'Daily':
         daily_data = data.groupby(data['Business Date'].dt.date).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
+        fig = px.line(daily_data, x='Business Date', y=['Room Revenue'], title='Daily View')
+        fig1 = px.line(daily_data, x='Business Date', y=['Rooms Sold'], title='Daily View')
+        fig2 = px.line(daily_data, x='Business Date', y=['Arrival Rooms'], title='Daily View')
+        fig3 = px.line(daily_data, x='Business Date', y=['Individual Confirm'], title='Daily View')
+        fig4 = px.line(daily_data, x='Business Date', y=['Individual Revenue'], title='Daily View')
+        st.plotly_chart(fig)
+        st.plotly_chart(fig1)
+        st.plotly_chart(fig2)
+        st.plotly_chart(fig3)
+        st.plotly_chart(fig4)
+
     elif view_option == 'Monthly':
         data['Month-Year'] = data['Business Date'].dt.strftime('%Y-%m')
         daily_data = data.groupby('Month-Year').agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
         #daily_data = data.groupby(data['Business Date'].dt.to_period('M')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum'}).reset_index()
         daily_data.rename(columns={'Business Date': 'Month'}, inplace=True)
+        #fig = px.line(daily_data, x='J', y=['Room Revenue'], title='Monthly View')
     elif view_option == 'Weekly':
         daily_data = data.groupby(data['Business Date'].dt.to_period('W')).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
         daily_data.rename(columns={'Business Date': 'Week'}, inplace=True)
+        #fig = px.line(daily_data, x='Week', y=['Room Revenue'], title='Daily View')
     elif view_option == 'Yearly':
         daily_data = data.groupby(data['Business Date'].dt.year).agg({'Room Revenue': 'sum', 'Rooms Sold': 'sum','Arrival Rooms':'sum','Individual Revenue':'sum','Individual Confirm':'sum'}).reset_index()
         daily_data.rename(columns={'Business Date': 'Year'}, inplace=True)
+        fig = px.bar(daily_data, x='Year', y=['Room Revenue'], title='Yearly View')
+        fig1 = px.bar(daily_data, x='Year', y=['Rooms Sold'], title='Yearly View')
+        fig2 = px.bar(daily_data, x='Year', y=['Arrival Rooms'], title='Yearly View')
+        fig3 = px.bar(daily_data, x='Year', y=['Individual Confirm'], title='Yearly View')
+        fig4 = px.bar(daily_data, x='Year', y=['Individual Revenue'], title='Yearly View')  
+        st.plotly_chart(fig)
+        st.plotly_chart(fig1)
+        st.plotly_chart(fig2)
+        st.plotly_chart(fig3)
+        st.plotly_chart(fig4)
+
 
     st.dataframe(daily_data)
+  
+
 
 
 

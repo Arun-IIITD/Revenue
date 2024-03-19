@@ -21,7 +21,7 @@ data5 = data5.drop_duplicates()
 data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
 data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
 data = pd.concat([data1,data2],ignore_index=True)
-data4 = data[['Business Date','Rooms Revenue']]
+data4 = data[['Business Date','Room Revenue']]
 data4.columns = ['ds','y'] 
 data4['ds'] = pd.to_datetime(data4['ds'])
 data4 = data4.drop_duplicates()  
@@ -39,8 +39,8 @@ def model_R(change_point):
     # Room sold for first 7 days(0-7)
     model = Prophet(
                         changepoint_prior_scale= change_point,
-                        holidays_prior_scale = 0.4,
-                        seasonality_mode = 'multiplicative',
+                        # holidays_prior_scale = 0.4,
+                        # seasonality_mode = 'multiplicative',
                         
                     )
     model.fit(train_data)
@@ -77,13 +77,13 @@ def model_R(change_point):
 
     #ROOM SOLD FOR next 7 days(8-14)
     model1 = Prophet(changepoint_prior_scale=change_point,
-                    holidays_prior_scale = 0.4,
-                    #n_changepoints = 200,
-                    seasonality_mode = 'multiplicative',
-                    weekly_seasonality=True,
-                    daily_seasonality = True,
-                    yearly_seasonality = False,
-                    interval_width=0.95
+                    # holidays_prior_scale = 0.4,
+                    # #n_changepoints = 200,
+                    # seasonality_mode = 'multiplicative',
+                    # weekly_seasonality=True,
+                    # daily_seasonality = True,
+                    # yearly_seasonality = False,
+                    # interval_width=0.95
                         )
     model1.fit(train_data)
     future_for_14_days = model1.make_future_dataframe(periods=14, freq='D', include_history=False)
@@ -118,8 +118,9 @@ def model_R(change_point):
     #ROOM SOLD FOR FOR 21 DAYS(15-21 days)
     model2 = Prophet(
                             changepoint_prior_scale=change_point,  # Tweak this parameter based on your data
-                            yearly_seasonality=False,       # Add yearly seasonality
-                            weekly_seasonality=True, )
+                            # yearly_seasonality=False,       # Add yearly seasonality
+                            # weekly_seasonality=True, 
+                            )
     model2.fit(train_data)
     future_for_21_days = model2.make_future_dataframe(periods=21, freq='D', include_history=False)
     forecast2 = model2.predict(future_for_21_days)
@@ -188,18 +189,23 @@ for i in changepoint_values:
     overall_accuracy_for_7_days.append(mean(acc[2]))
     overall_accuracy_for_14_days.append(mean(acc[5]))
     overall_accuracy_for_21_days.append(mean(acc[8]))
+    
 overall_accuracy_for_7_days = [round(ele) for ele in overall_accuracy_for_7_days]
-#print(overall_accuracy_for_7_days)
+print(overall_accuracy_for_7_days)
 print(round(max(overall_accuracy_for_7_days)))
-print("for 7 days",(overall_accuracy_for_7_days.index(max(overall_accuracy_for_7_days))/100)+0.01)
+print("for 7 days",(overall_accuracy_for_7_days.index(max(overall_accuracy_for_7_days))))
+print("\n")
+
 overall_accuracy_for_14_days = [round(ele) for ele in overall_accuracy_for_14_days]
-#print(overall_accuracy_for_14_days)
+print(overall_accuracy_for_14_days)
 print(round(max(overall_accuracy_for_14_days)))
-print("for 14 days",(overall_accuracy_for_14_days.index(max(overall_accuracy_for_14_days))/100)+0.01)
+print("for 14 days",(overall_accuracy_for_14_days.index(max(overall_accuracy_for_14_days))))
+print("\n")
+
 overall_accuracy_for_21_days = [round(ele) for ele in overall_accuracy_for_21_days]
-#print(overall_accuracy_for_21_days)
+print(overall_accuracy_for_21_days)
 print(round(max(overall_accuracy_for_21_days)))
-print("for 21 days",(overall_accuracy_for_21_days.index(max(overall_accuracy_for_21_days)) /100)+0.01)
+print("for 21 days",(overall_accuracy_for_21_days.index(max(overall_accuracy_for_21_days))))
 
 
 

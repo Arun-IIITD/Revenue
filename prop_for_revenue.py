@@ -233,19 +233,19 @@ def model_rev():
 # print(arr[8])
 # print(mean(arr[8]))
 
-changepoint_values = [i / 100 for i in range(1, 100)]
-for i in changepoint_values:
-    acc = model_rev(i)
-    overall_accuracy_for_7_days.append(mean(acc[2]))
-    overall_accuracy_for_14_days.append(mean(acc[5]))
-    overall_accuracy_for_21_days.append(mean(acc[8]))
+# changepoint_values = [i / 100 for i in range(1, 100)]
+# for i in changepoint_values:
+#     acc = model_rev(i)
+#     overall_accuracy_for_7_days.append(mean(acc[2]))
+#     overall_accuracy_for_14_days.append(mean(acc[5]))
+#     overall_accuracy_for_21_days.append(mean(acc[8]))
 
-print(max(overall_accuracy_for_7_days))
-print("for 7 days",overall_accuracy_for_7_days.index(max(overall_accuracy_for_7_days)))
-print(max(overall_accuracy_for_14_days))
-print("for 14 days",overall_accuracy_for_14_days.index(max(overall_accuracy_for_14_days)))
-print(max(overall_accuracy_for_21_days))
-print("for 21 days",overall_accuracy_for_21_days.index(max(overall_accuracy_for_21_days)))
+# print(max(overall_accuracy_for_7_days))
+# print("for 7 days",overall_accuracy_for_7_days.index(max(overall_accuracy_for_7_days)))
+# print(max(overall_accuracy_for_14_days))
+# print("for 14 days",overall_accuracy_for_14_days.index(max(overall_accuracy_for_14_days)))
+# print(max(overall_accuracy_for_21_days))
+# print("for 21 days",overall_accuracy_for_21_days.index(max(overall_accuracy_for_21_days)))
 
 
 

@@ -243,7 +243,7 @@ def main():
         # #NO OF CHANGEPOINTS AND CHANGEPOINTS #3RD GRAPH WITH CHANGEPOINTS WITH SOME TUNING by default c =25
         m3_changepoints = (pd.date_range('2022-01-23', '2022-12-01', periods=15).date.tolist() + 
         pd.date_range('2023-01-01', '2023-12-01', periods=10).date.tolist())
-        m3 = Prophet(changepoints=m3_changepoints, changepoint_prior_scale=0.96)
+        m3 = Prophet(changepoints=m3_changepoints, changepoint_prior_scale=0.87)
         m3 = m3.fit(train_data)
         future3 = m3.make_future_dataframe(periods=21)
         forecast3 = m3.predict(future3)
@@ -319,7 +319,7 @@ def main():
     with col11:
         m3_changepoints = (pd.date_range('2022-01-23', '2022-12-01', periods=15).date.tolist() + 
         pd.date_range('2023-01-01', '2023-12-01', periods=10).date.tolist())
-        m3 = Prophet(changepoints=m3_changepoints, changepoint_prior_scale=0.01)
+        m3 = Prophet(changepoints=m3_changepoints, changepoint_prior_scale=0.99)
         m3 = m3.fit(train_data)
         future3 = m3.make_future_dataframe(periods=21)
         forecast3 = m3.predict(future3)
@@ -334,70 +334,70 @@ def main():
 
 
     # #PROPHET FORECAST FOR ARRIVAL ROOMS
-    # connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
-    # client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
-    # database_name = "Revenue_Forecasting"
-    # db = client[database_name] 
-    # collection4 = db["Accuracy"]
-    # cursor4 = collection4.find({})
-    # data4 = pd.DataFrame(list(cursor4))
-    # data4 = data4.drop_duplicates() 
-    # collection5 = db["Revenue"]
-    # cursor5 = collection5.find({})
-    # data5 = pd.DataFrame(list(cursor5))
-    # data5 = data5.drop_duplicates() 
-    # data4 =  data4[['Business Date','Room Revenue','Rooms Sold']]
-    # data5 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
-    # data = pd.concat([data4,data5],ignore_index=True)
-    # data = data[['Business Date','Arrival Rooms']]
-    # data.columns = ['ds','y'] 
-    # data['ds'] = pd.to_datetime(data['ds'])
-    # data = data.drop_duplicates()  
-    # data = data.sort_values(by='ds')
+    connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
+    client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
+    database_name = "Revenue_Forecasting"
+    db = client[database_name] 
+    collection4 = db["Accuracy"]
+    cursor4 = collection4.find({})
+    data4 = pd.DataFrame(list(cursor4))
+    data4 = data4.drop_duplicates() 
+    collection5 = db["Revenue"]
+    cursor5 = collection5.find({})
+    data5 = pd.DataFrame(list(cursor5))
+    data5 = data5.drop_duplicates() 
+    data4 =  data4[['Business Date','Room Revenue','Rooms Sold']]
+    data5 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
+    data = pd.concat([data4,data5],ignore_index=True)
+    data = data[['Business Date','Arrival Rooms']]
+    data.columns = ['ds','y'] 
+    data['ds'] = pd.to_datetime(data['ds'])
+    data = data.drop_duplicates()  
+    data = data.sort_values(by='ds')
 
-    # train_data = data.iloc[520:844]
-    # test_data_for_21_days = data.iloc[844:865]
+    train_data = data.iloc[520:844]
+    test_data_for_21_days = data.iloc[844:865]
  
-    # st.subheader('ARRIVAL ROOMS')
-    # st.subheader('Forecast without Tuning ')
-    # col13,col14 = st.columns(2)
-    # with col13:
-    #     model = Prophet()
-    #     model.fit(train_data)
-    #     future = model.make_future_dataframe(periods=21)
-    #     forecast = model.predict(future)
-    #     fig1 = model.plot(forecast)
-    #     st.pyplot(fig1)
-    #     train_forecast = model.predict(train_data[['ds']])
-    #     val_forecast = model.predict(test_data_for_21_days[['ds']])
-    #     train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
-    #     val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'])
-    #     st.write(f"TRAIN_MAPE: {(train_mape)}")
-    #     st.write(f'VALIDATION_MAPE: {val_mape}')
+    st.subheader('ARRIVAL ROOMS')
+    st.subheader('Forecast without Tuning ')
+    col13,col14 = st.columns(2)
+    with col13:
+        model = Prophet()
+        model.fit(train_data)
+        future = model.make_future_dataframe(periods=21)
+        forecast = model.predict(future)
+        fig1 = model.plot(forecast)
+        st.pyplot(fig1)
+        train_forecast = model.predict(train_data[['ds']])
+        val_forecast = model.predict(test_data_for_21_days[['ds']])
+        train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
+        val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'])
+        st.write(f"TRAIN_MAPE: {(train_mape)}")
+        st.write(f'VALIDATION_MAPE: {val_mape}')
 
-    # st.subheader('Forecast with Changepoints ')
-    # col15,col16 = st.columns(2)
-    # with col15:
-    #     fig2 = model.plot(forecast)  #2nd graph with changepoints
-    #     a = add_changepoints_to_plot(fig2.gca(), model, forecast)
-    #     st.pyplot(fig2)
+    st.subheader('Forecast with Changepoints ')
+    col15,col16 = st.columns(2)
+    with col15:
+        fig2 = model.plot(forecast)  #2nd graph with changepoints
+        a = add_changepoints_to_plot(fig2.gca(), model, forecast)
+        st.pyplot(fig2)
     
-    # st.subheader('Forecast with TUNING ')
-    # col17,col18 = st.columns(2)
-    # with col17:
-    #     m3_changepoints = pd.date_range('2023-03-10', '2023-12-01', periods=10).date.tolist()
-    #     m3 = Prophet(changepoints=m3_changepoints, changepoint_prior_scale=0.1)
-    #     m3 = m3.fit(train_data)
-    #     future3 = m3.make_future_dataframe(periods=21)
-    #     forecast3 = m3.predict(future3)
-    #     fig3  = m3.plot(forecast3) #3rd graph without  changepoint
-    #     st.pyplot(fig3)
-    #     train_forecast = m3.predict(train_data[['ds']])
-    #     val_forecast = m3.predict(test_data_for_21_days[['ds']])
-    #     train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
-    #     val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'].tail(21))
-    #     st.write(f'Training MAPE: {train_mape}')
-    #     st.write(f'Validation_MAPE: {val_mape}')
+    st.subheader('Forecast with TUNING ')
+    col17,col18 = st.columns(2)
+    with col17:
+        m3_changepoints = pd.date_range('2023-03-10', '2023-12-01', periods=10).date.tolist()
+        m3 = Prophet(changepoints=m3_changepoints, changepoint_prior_scale=0.1)
+        m3 = m3.fit(train_data)
+        future3 = m3.make_future_dataframe(periods=21)
+        forecast3 = m3.predict(future3)
+        fig3  = m3.plot(forecast3) #3rd graph without  changepoint
+        st.pyplot(fig3)
+        train_forecast = m3.predict(train_data[['ds']])
+        val_forecast = m3.predict(test_data_for_21_days[['ds']])
+        train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
+        val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'].tail(21))
+        st.write(f'Training MAPE: {train_mape}')
+        st.write(f'Validation_MAPE: {val_mape}')
     
 
     # #PROPHET FORECAST FOR INDIVIDUAL CONFIRM

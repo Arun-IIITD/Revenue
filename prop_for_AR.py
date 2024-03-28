@@ -33,21 +33,22 @@ data5 = data5.drop_duplicates()
 data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
 data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
 data = pd.concat([data1,data2],ignore_index=True)
-data4 = data[['Business Date','Individual Confirm']]
+data4 = data[['Business Date','Arrival Rooms']]
 data4.columns = ['ds','y'] 
 data4['ds'] = pd.to_datetime(data4['ds'])
 data4 = data4.drop_duplicates()  
 data4 = data4.sort_values(by='ds')
 data4 = data4.drop_duplicates()  
 print(len(data4))
-train_data = data4.iloc[:844]
+train_data = data4.iloc[516:844]
 test_data_for_next_7_days = data4.iloc[844:851]
 test_data_for_next_14_days = data4.iloc[851:858]
 test_data_for_next_21_days = data4.iloc[858:865]
 
-def model_IC():
+#FOR 1st 7 DAYS(1-7)
+def model_A():
     model = Prophet(
-                            changepoint_prior_scale= 0.1,
+                            changepoint_prior_scale= 0.01,
                             holidays_prior_scale = 0.8,
                             n_changepoints = 200,
                             seasonality_mode = 'multiplicative',
@@ -69,30 +70,44 @@ def model_IC():
         Predicted_for_7_days.append(j)
 
     tp_for_7_days = 0
+    tn_for_7_days = 0
+    fp_for_7_days = 0
     fn_for_7_days = 0
     for i,j in zip(Actual_for_7_days,Predicted_for_7_days):
+        c = i-j
         c = abs(i-j)
         c = c*100/i
         c  = 100-c
         c= int(c)
-        if c >90:
-                tp_for_7_days+=1
-        else:
-                fn_for_7_days+=1
         Accuracy_for_7_days.append(c)
+        if i <j:
+            if c>80 and c<100:
+                tp_for_7_days +=1
+            elif c<80:
+                fp_for_7_days+=1
+        elif  i>j:
+            if  c>80 and c<100:
+                tn_for_7_days +=1
+            elif c<80:
+                fn_for_7_days+=1
+        
+
+  
+
+
 
     #FOR next 7 DAYS (8-14)
     model1 = Prophet(
-                        changepoint_prior_scale= 0.1,
+                        changepoint_prior_scale= 0.01,
                         holidays_prior_scale = 0.4,
-                        n_changepoints = 400,
+                        n_changepoints = 200,
                         seasonality_mode = 'additive',
                         weekly_seasonality=True,
                         daily_seasonality = True,
                         yearly_seasonality = True,
                         interval_width=0.5)
     model1.fit(train_data)
-    future_for_14_days = model1.make_future_dataframe(periods=14, freq='D', include_history=False)
+    future_for_14_days = model1.make_future_dataframe(periods=7, freq='D', include_history=False)
     forecast1 = model1.predict(future_for_14_days)
     next_14_days = forecast1.tail(7)
     Actual_for_14_days =  []
@@ -106,23 +121,33 @@ def model_IC():
         Predicted_for_14_days.append(j)
 
     tp_for_14_days = 0
+    tn_for_14_days = 0
     fn_for_14_days = 0
+    fp_for_14_days = 0
     for i,j in zip(Actual_for_14_days,Predicted_for_14_days):
         c = abs(i-j)
         c = c*100/i
         c  = 100-c
         c= int(c)
-        if c >90:
-            tp_for_14_days += 1
-        else:
-            fn_for_14_days+=1
         Accuracy_for_14_days.append(c)
+        if i <j:
+            if c>80 and c<100:
+                tp_for_14_days +=1
+            elif c<80:
+                fp_for_14_days+=1
+
+        elif  i>j:
+            if  c>80 and c<100:
+                tn_for_14_days +=1
+            elif c<80:
+                fn_for_14_days+=1
+        
 
 
     # For the next 7 days(15-21 days)
     model2 = Prophet(
-                        changepoint_prior_scale= 0.1,
-                        holidays_prior_scale = 0.4,
+                        changepoint_prior_scale= 0.01,
+                        #holidays_prior_scale = 0.4,
                         n_changepoints = 200,
                         seasonality_mode = 'multiplicative',
                         weekly_seasonality=True,
@@ -130,7 +155,7 @@ def model_IC():
                         yearly_seasonality = True,
                         interval_width=0.9)
     model2.fit(train_data)
-    future_for_21_days = model2.make_future_dataframe(periods=7, freq='D', include_history=False)
+    future_for_21_days = model2.make_future_dataframe(periods=21, freq='D', include_history=False)
     forecast2 = model2.predict(future_for_21_days)
     next_21_days = forecast2.tail(7)
     Actual_for_21_days =  []
@@ -143,21 +168,59 @@ def model_IC():
         Predicted_for_21_days.append(j)
         
     tp_for_21_days = 0
+    tn_for_21_days = 0
+    fp_for_21_days = 0
     fn_for_21_days = 0
+    
     for i,j in zip(Actual_for_21_days,Predicted_for_21_days):
         c = abs(i-j)
         c = c*100/i
         c  = 100-c
         c= int(c)
-        if c >= 90:
-            tp_for_21_days +=1
-        else:
-            fn_for_21_days+=1
         Accuracy_for_21_days.append(c)
+        if i <j:
+            if c>80 and c<100:
+                tp_for_21_days +=1
+            elif c<80:
+                fp_for_21_days+=1
 
-    sensitivity_values_for_7_days = tp_for_7_days/(tp_for_7_days + fn_for_7_days)
-    sensitivity_values_for_14_days = tp_for_14_days/(tp_for_14_days + fn_for_14_days)
-    sensitivity_values_for_21_days = tp_for_21_days/(tp_for_21_days + fn_for_21_days)
+        elif  i>j:
+            if  c>80 and c<100:
+                tn_for_7_days +=1
+            elif c<80:
+                fn_for_21_days+=1
+
+    
+
+    # SENSITIVITY IS EQUAL TO RECALL
+    def safe_divide(numerator, denominator):
+        try:
+            return numerator / denominator
+        except ZeroDivisionError:
+            return None
+
+# Define the calculations to perform
+    calculations = {
+        'sensitivity_values_for_7_days': (tp_for_7_days, tp_for_7_days + fn_for_7_days),
+        'sensitivity_values_for_14_days': (tp_for_14_days, tp_for_14_days + fn_for_14_days),
+        'sensitivity_values_for_21_days': (tp_for_21_days, tp_for_21_days + fn_for_21_days),
+        'specificity_values_for_7_days': (tn_for_7_days, tn_for_7_days + fp_for_7_days),
+        'specificity_values_for_14_days': (tn_for_14_days, tn_for_14_days + fp_for_14_days),
+        'specificity_values_for_21_days': (tn_for_21_days, tn_for_21_days + fp_for_21_days),
+        'precision_values_for_7_days': (tp_for_7_days, tp_for_7_days + fp_for_7_days),
+        'precision_values_for_14_days': (tp_for_14_days, tp_for_14_days + fp_for_14_days),
+        'precision_values_for_21_days': (tp_for_21_days, tp_for_21_days + fp_for_21_days),
+    }
+
+    # Perform each calculation using a dictionary comprehension
+    results = {key: safe_divide(*values) for key, values in calculations.items()}
+    for key, value in results.items():
+        if value is None:
+            print(f"{key} : NONE")
+        else:
+            print(f"{key}: {value:.2f}")
+
+  
 
     absolute_diff1 = np.abs(np.array(Predicted_for_7_days) - np.array(Actual_for_7_days))
     mae1 = np.mean(absolute_diff1)
@@ -166,7 +229,7 @@ def model_IC():
     absolute_diff3 = np.abs(np.array(Predicted_for_21_days) - np.array(Actual_for_21_days))
     mae3 = np.mean(absolute_diff3)
 
-     # Convert 'ds' to datetime
+    # Convert 'ds' to datetime
     data4['ds'] = pd.to_datetime(data4['ds'])
 
     # Extract year and month
@@ -188,13 +251,17 @@ def model_IC():
     # Group by month and sum the revenues for 2023
     merged_data = data_2023.groupby('Month')['y'].sum().reset_index()
 
-    return  Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
 
-arr = model_IC()
+
+    #return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data
+    return Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,results['sensitivity_values_for_7_days'],results['sensitivity_values_for_14_days'],results['sensitivity_values_for_21_days'],results['precision_values_for_7_days'],results['precision_values_for_14_days'],results['precision_values_for_21_days'],results['specificity_values_for_7_days'],results['specificity_values_for_14_days'],results['specificity_values_for_21_days'],mae1,mae2,mae3,merged_data
+#print(model_A())
+arr = model_A()
 
 print(arr[2])
 print(arr[5])
 print(arr[8])
+
 
 
 

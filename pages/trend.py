@@ -74,7 +74,7 @@ def custom_top_bar(selected_page=None):
     """
     Custom HTML for a fixed top bar.
     """
-    selected_page = selected_page or "Prediction"
+    selected_page = selected_page or "trend"
     current_file = os.path.basename(__file__)
     custom_top_bar = f"""
     <style>

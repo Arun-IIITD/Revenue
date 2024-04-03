@@ -24,7 +24,7 @@ from prophet import Prophet
 from prophet.plot import (add_changepoints_to_plot, plot, plot_components,plot_components_plotly, plot_plotly)
 from sklearn.metrics import (confusion_matrix, mean_absolute_error,mean_absolute_percentage_error,mean_squared_error, recall_score)
 from statsmodels.tsa.arima.model import ARIMA
-from CAL import perform
+#from CAL import perform
 
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
 
@@ -143,7 +143,45 @@ url_to_page = {
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)
+
+#-------------------------------------------------------
+
+
+def calculate_day_to_day_ape(actual, predicted):
+    actual, predicted = np.array(actual), np.array(predicted)
+    return np.abs((actual - predicted) / actual) * 100
 # -----------------------------------------------
+def plot_revenue_with_error(actual_dates, actual_revenue, predicted_dates, predicted_revenue,range1):
+    # Calculate day-to-day APE
+    daily_ape = calculate_day_to_day_ape(actual_revenue, predicted_revenue)
+
+    # Create figure and primary axis
+    fig = go.Figure()
+    
+    # Plot actual revenue
+    fig.add_trace(go.Scatter(x=actual_dates, y=actual_revenue, mode='lines+markers',
+                             name='Actual Revenue', line=dict(color='blue')))
+    #yaxis=dict(title='Revenue (in Lakhs)', range=[100000,2000000])
+    # Plot predicted revenue
+    fig.add_trace(go.Scatter(x=predicted_dates, y=predicted_revenue, mode='lines+markers',
+                             name='Predicted Revenue', line=dict(color='red')))
+    
+    # Add secondary axis for the error rate
+    fig.add_trace(go.Scatter(x=actual_dates, y=daily_ape, mode='lines+markers',
+                             name='Error Rate (%)', yaxis='y2', line=dict(color='green')))
+    
+    # Layout adjustments
+    fig.update_layout(
+        title="ERROR RATE",
+        xaxis_title='Date',
+        #yaxis=dict(title='Revenue'),
+        yaxis=dict(title='Revenue (in Lakhs)', range=range1),
+        yaxis2=dict(title='Error Rate (%)', overlaying='y', side='right', range=[0,100]),  # Secondary y-axis for error rate
+        legend=dict(x=0.01, y=0.99, bordercolor='Black', borderwidth=1)
+    )
+    
+    # Plot the figure in Streamlit
+    st.plotly_chart(fig)
 
 # ---------------------------------------------------------------------
 
@@ -185,7 +223,9 @@ def main():
         """,
         unsafe_allow_html=True,
     )
+    
 
+    #EXTRACTING DATABASE
     connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
     client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
     database_name = "Revenue_Forecasting"
@@ -201,6 +241,7 @@ def main():
     data4 =  data4[['Business Date','Room Revenue','Rooms Sold']]
     data5 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
     data = pd.concat([data4,data5],ignore_index=True)
+    
     data = data[['Business Date','Room Revenue']]
     data.columns = ['ds','y'] 
     data['ds'] = pd.to_datetime(data['ds'])
@@ -223,6 +264,7 @@ def main():
         val_forecast = model.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'])
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,2000000])
         st.write(f"TRAIN_MAPE: {(train_mape)}")
         st.write(f'VALIDATION_MAPE: {val_mape}')
 
@@ -233,6 +275,7 @@ def main():
         fig2 = model.plot(forecast)  #2nd graph with changepoints
         a = add_changepoints_to_plot(fig2.gca(), model, forecast)
         st.pyplot(fig2)
+        #plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[100000,2000000])
         #st.write(f"No. of CHANGEPOITNS found between 2021 and 2024: {(len(model.changepoints))}")
         #st.write(f"**After applying Hyperparameter Tuning,we get changepoint_prior scale:  0.96  ** ")
 
@@ -254,6 +297,7 @@ def main():
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'].tail(21))
         #st.write(f"**After Hyperparameter Tuning with changepoint_prior scale:  0.96  ** ")
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,2000000])
         st.write(f'Training MAPE: {train_mape}')
         st.write(f'Validation_MAPE: {val_mape}')
 
@@ -300,6 +344,7 @@ def main():
         val_forecast = model.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'])
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,150])
         st.write(f"TRAIN_MAPE: {(train_mape)}")
         st.write(f'VALIDATION_MAPE: {val_mape}')
     
@@ -329,6 +374,7 @@ def main():
         val_forecast = m3.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'].tail(21))
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,150])
         st.write(f'Training MAPE: {train_mape}')
         st.write(f'Validation_MAPE: {val_mape}')
 
@@ -372,6 +418,7 @@ def main():
         val_forecast = model.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'])
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,90])
         st.write(f"TRAIN_MAPE: {(train_mape)}")
         st.write(f'VALIDATION_MAPE: {val_mape}')
 
@@ -396,6 +443,7 @@ def main():
         val_forecast = m3.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'].tail(21))
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,90])
         st.write(f'Training MAPE: {train_mape}')
         st.write(f'Validation_MAPE: {val_mape}')
     
@@ -438,6 +486,7 @@ def main():
         val_forecast = model.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'])
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,150])
         st.write(f"TRAIN_MAPE: {(train_mape)}")
         st.write(f'VALIDATION_MAPE: {val_mape}')
     
@@ -466,6 +515,7 @@ def main():
         val_forecast = m3.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'].tail(21))
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,150])
         st.write(f'Training MAPE: {train_mape}')
         st.write(f'Validation_MAPE: {val_mape}')
 
@@ -509,6 +559,7 @@ def main():
         val_forecast = model.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'])
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,2000000])
         st.write(f"TRAIN_MAPE: {(train_mape)}")
         st.write(f'VALIDATION_MAPE: {val_mape}')
     
@@ -536,6 +587,7 @@ def main():
         val_forecast = m3.predict(test_data_for_21_days[['ds']])
         train_mape = mean_absolute_percentage_error(train_data['y'], train_forecast['yhat'])
         val_mape = mean_absolute_percentage_error(test_data_for_21_days['y'], val_forecast['yhat'].tail(21))
+        plot_revenue_with_error(train_forecast['ds'],train_data['y'],train_forecast['ds'],train_forecast['yhat'],[0,2000000])
         st.write(f'Training MAPE: {train_mape}')
         st.write(f'Validation_MAPE: {val_mape}')
 

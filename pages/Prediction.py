@@ -577,8 +577,7 @@ def main():
         unsafe_allow_html=True,
     )
 
-  
-    #ROOM REVENUE
+#ROOM REVENUE
     st.subheader("Predicted vs Actual ROOM REVENUE")
     col1,col2 = st.columns(2)
     import prop_for_revenue as rfs
@@ -592,10 +591,6 @@ def main():
         st.write(f"MAE: {(mae1)}")
         st.write(f"Specificity: {(specificity_values_for_7_days)}%")
         st.write(f"Precision: {(precision_values_for_7_days)}%")
-        # st.title('Forecast Results')
-        # st.write('### Forecast Plot')
-        # st.pyplot(fig1)
-        # st.pyplot(fig2)
         st.markdown("---")
     
     #PLOT FOR 08-14 DAYS ROOM REVENUE

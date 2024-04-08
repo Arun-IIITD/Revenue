@@ -114,6 +114,7 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
             <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
             <a style="color: {'red' if selected_page == 'Trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Trend' else 'none'}" href="/trend" target="_self">Trend</a>
+            <a style="color: {'red' if selected_page == 'Yearly' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Yearly' else 'none'}" href="/Yearly" target="_self">Yearly</a>
         </div>
     </div>
     """
@@ -133,6 +134,7 @@ url_to_page = {
     "/market": "market",
       "/View": "View",
       "/Trend": "Trend",
+      "/Yearly": "Yearly"
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)

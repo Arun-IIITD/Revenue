@@ -4,7 +4,7 @@ import openpyxl
 import os
 import zipfile
 from CAL import perform
-from streamlit_extras.switch_page_button import switch_page
+#from streamlit_extras.switch_page_button import switch_page
 
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
 
@@ -99,9 +99,10 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Report' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Report' else 'none'}" href="/Report" target="_self">Report</a>
             <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
-             <a style="color: {'red' if selected_page == 'market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
-             <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
-             <a style="color: {'red' if selected_page == 'Trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Trend' else 'none'}" href="/Trend" target="_self">trend</a>
+            <a style="color: {'red' if selected_page == 'market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
+            <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
+            <a style="color: {'red' if selected_page == 'Trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Trend' else 'none'}" href="/Trend" target="_self">trend</a>
+            <a style="color: {'red' if selected_page == 'Yearly' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Yearly' else 'none'}" href="/Yearly" target="_self">Yearly</a>
         </div>
     </div>
     """
@@ -121,6 +122,7 @@ url_to_page = {
     "/market": "market",
     "/View": "View",
     "/Trend": "Trend",
+    "/Yearly": "Yearly"
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)

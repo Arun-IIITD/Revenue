@@ -102,6 +102,7 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
              <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
              <a style="color: {'red' if selected_page == 'trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'trend' else 'none'}" href="/trend" target="_self">trend</a>
+             <a style="color: {'red' if selected_page == 'Yearly' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Yearly' else 'none'}" href="/Yearly" target="_self">Yearly</a>
     </div>
     """
     st.markdown(custom_top_bar, unsafe_allow_html=True)
@@ -125,6 +126,7 @@ url_to_page = {
     "/market": "market",
     "/View": "View",
     "/trend": "trend",
+    "/Yearly": "Yearly"
 
     
 }

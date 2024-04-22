@@ -129,7 +129,7 @@ connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 db = client[database_name]
-collection = db["Revenue"]
+collection = db["Summary"]
 
 last_business_date_result = collection.find({}, {"Business Date": 1}).sort("Business Date", pymongo.DESCENDING).limit(1)
 last_business_date = last_business_date_result[0]["Business Date"] if collection.count_documents({}) > 0 else datetime.now().strftime("%Y-%m-%d")
@@ -303,7 +303,7 @@ def display_data():
                     unsafe_allow_html=True
                 )
             # Display values for each field
-            fields = ["Occupancy %", "ARR", "Arrival Rooms", "OOO Rooms", "Pax", "Room Revenue", "Rooms for Sale", "Departure Rooms", "House Use", "Total Room Inventory"]
+            fields = ["Occupancy","Room Revenue", "Arrival Rooms", "OOO Rooms", "Pax", "Rooms Sold", "Dep Rooms", "House Use"]
             col1, col2, col3 = st.columns(3)
             for i, field in enumerate(fields):
                 if i % 3 == 0:

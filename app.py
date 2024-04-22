@@ -184,7 +184,7 @@ connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 db = client[database_name]
-collection = db["Revenue"]
+collection = db["Summary"]
 pipeline = [
     {"$group": {"_id": None, "minDate": {"$min": "$Business Date"}, "maxDate": {"$max": "$Business Date"}}}
 ]

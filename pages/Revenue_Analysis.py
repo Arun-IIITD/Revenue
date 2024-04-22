@@ -150,7 +150,7 @@ database_name = "Revenue_Forecasting"
 db = client[database_name]
 collection = db["Revenue"]
 
-# connection_uri = "mongodb://localhost:27017/"
+# connection_uri = "mongodb://localhost:27017/
 # client = pymongo.MongoClient(connection_uri)
 # database_name = "revenue_database"
 # db = client[database_name]

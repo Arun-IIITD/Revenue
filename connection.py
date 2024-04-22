@@ -98,4 +98,17 @@ data5 = df5.drop_duplicates()
 data5 = df5.to_dict(orient='records')
 result5 = collection5.insert_many(data5)
 
+collection6 = db["Summary"]
+from datetime import datetime
+collection6.delete_many({})
+df6 = pd.read_excel("summary.xlsx")
+#date_string = current_date.strftime('%Y-%m-%d')
+df6['Business Date'] = pd.to_datetime(df6['Business Date']).dt.strftime('%Y-%m-%d')
+
+#df6['Business Date'] = df6['Business Date'].dt.date
+data6 = df6.drop_duplicates()
+data6 = df6.to_dict(orient='records')
+result6 = collection6.insert_many(data6)
+
 client.close()
+

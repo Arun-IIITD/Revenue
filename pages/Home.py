@@ -176,11 +176,11 @@ connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 db = client[database_name]
-collection = db["Revenue"]
+collection = db["Summary"]
 pipeline = [
     {"$group": {"_id": None, "minDate": {"$min": "$Business Date"}, "maxDate": {"$max": "$Business Date"}}}
 ]
-result = list(collection.aggregate(pipeline))
+result = list(collection['Room Revenue'].aggregate(pipeline))
 
 if result:
     start_date_str = result[0]["minDate"]
@@ -196,7 +196,7 @@ end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
 @st.cache
 def get_data(start_date, end_date):
     query = {"Business Date": {"$gte": start_date, "$lte": end_date}}
-    cursor = collection.find(query)
+    cursor = collection['Room Revenue'].find(query)
     return pd.DataFrame(list(cursor))
 
 
@@ -210,7 +210,7 @@ date2 = date2.strftime("%Y-%m-%d")
 query = {"Business Date": {"$gte": date1, "$lte": date2}}
 
 #---------------------------------------------------------------------------
-cursor = collection.find(query)
+cursor = collection['Room Revenue'].find(query)
 df = pd.DataFrame(list(cursor))
 if not df.empty:
     # Display 'Room Revenue' for the selected date range

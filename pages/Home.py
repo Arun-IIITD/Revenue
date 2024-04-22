@@ -232,6 +232,7 @@ if not df.empty:
     xaxis_title_font_size=16,  # Increase the x-axis label font size
     yaxis_title_font_size=16,  # Increase the y-axis label font size
     xaxis_rangeslider_visible=True,
+    
     xaxis_rangeslider_thickness=0.03,  # Adjust the thickness of the range slider
     xaxis_rangeslider_bgcolor='lightgray',  # Set the background color of the range slider
     xaxis_rangeslider_bordercolor='gray',  # Set the border color of the range slider

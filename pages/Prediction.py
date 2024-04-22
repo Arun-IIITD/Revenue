@@ -3,7 +3,10 @@ import os
 from io import BytesIO
 #from streamlit_extras.switch_page_button import switch_page
 from statistics import mean
-
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import calendar
 import altair as alt
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,8 +19,6 @@ from prophet import Prophet
 from prophet.plot import add_changepoints_to_plot
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from statsmodels.tsa.arima.model import ARIMA
-
-from CAL import perform
 
 st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
 
@@ -109,14 +110,11 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Daily_Overview' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Daily_Overview' else 'none'}" href="/Daily_Overview" target="_self">Daily Overview</a>
             <a style="color: {'red' if selected_page == 'Revenue_Analysis' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Revenue_Analysis' else 'none'}" href="/Revenue_Analysis" target="_self">Revenue Analysis</a>
             <a style="color: {'red' if selected_page == 'Report' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Report' else 'none'}" href="/Report" target="_self">Report</a>
-            <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
             <a style="color: {'red' if selected_page == 'market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
-            <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
-            <a style="color: {'red' if selected_page == 'trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Trend' else 'none'}" href="/trend" target="_self">Trend</a>
-            <a style="color: {'red' if selected_page == 'Yearly' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Yearly' else 'none'}" href="/Yearly" target="_self">Yearly</a>
-        </div>
-    </div>
+            <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
+            <a style="color: {'red' if selected_page == 'Trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Trend' else 'none'}" href="/trend" target="_self">Trend</a>
+            </div>
     """
     st.markdown(custom_top_bar, unsafe_allow_html=True)
 
@@ -129,19 +127,17 @@ url_to_page = {
     "/Daily_Overview": "Daily_Overview",
     "/Revenue_Analysis": "Revenue_Analysis",
     "/Report": "Report",
-    "/Prediction": "Prediction",
+  #  "/Prediction": "Prediction",
     "/upload": "Upload",
     "/market": "market",
-    "/View": "View",
-    "/Trend": "Trend",
-    "/Yearly": "Yearly"
+    "/Prediction": "Prediction",
+      "/Trend": "Trend",
+    #  "/Yearly": "Yearly"
 }
 selected_page = url_to_page.get(url_path)
 custom_top_bar(selected_page)
 # -----------------------------------------------
-
-
-def plot_revenue_with_error(actual_dates, actual_revenue, predicted_dates, predicted_revenue, title):
+def plot_graph_with_error(actual_dates, actual_revenue, predicted_revenue, range1):
     # Calculate day-to-day APE
     daily_ape = calculate_day_to_day_ape(actual_revenue, predicted_revenue)
 
@@ -150,11 +146,11 @@ def plot_revenue_with_error(actual_dates, actual_revenue, predicted_dates, predi
     
     # Plot actual revenue
     fig.add_trace(go.Scatter(x=actual_dates, y=actual_revenue, mode='lines+markers',
-                             name='Actual Revenue', line=dict(color='blue')))
+                             name='Actual', line=dict(color='blue')))
     #yaxis=dict(title='Revenue (in Lakhs)', range=[100000,2000000])
     # Plot predicted revenue
-    fig.add_trace(go.Scatter(x=predicted_dates, y=predicted_revenue, mode='lines+markers',
-                             name='Predicted Revenue', line=dict(color='red')))
+    fig.add_trace(go.Scatter(x=actual_dates, y=predicted_revenue, mode='lines+markers',
+                             name='Predicted', line=dict(color='red')))
     
     # Add secondary axis for the error rate
     fig.add_trace(go.Scatter(x=actual_dates, y=daily_ape, mode='lines+markers',
@@ -162,10 +158,10 @@ def plot_revenue_with_error(actual_dates, actual_revenue, predicted_dates, predi
     
     # Layout adjustments
     fig.update_layout(
-        title=title,
+        
         xaxis_title='Date',
         #yaxis=dict(title='Revenue'),
-        yaxis=dict(title='Revenue (in Lakhs)', range=[100000,2000000]),
+        yaxis=dict(title='Revenue (in Lakhs)', range=range1),
         yaxis2=dict(title='Error Rate (%)', overlaying='y', side='right', range=[0, 100]),  # Secondary y-axis for error rate
         legend=dict(x=0.01, y=0.99, bordercolor='Black', borderwidth=1)
     )
@@ -173,294 +169,56 @@ def plot_revenue_with_error(actual_dates, actual_revenue, predicted_dates, predi
     # Plot the figure in Streamlit
     st.plotly_chart(fig)
 
-
+def calculate_day_to_day_ape(actual, predicted):
+    actual, predicted = np.array(actual), np.array(predicted)
+    return np.abs((actual - predicted) / actual) * 100
 # ---------------------------------------------------------------------
-def plot_room_sold_with_error_rate(actual_dates, actual_room_sales, predicted_dates, predicted_room_sales, title):
+def calculate_mape(actual, predicted):
+    actual, predicted = np.array(actual), np.array(predicted)
+    mask = actual != 0
+    mape = (np.abs(actual - predicted) / actual)[mask].mean() * 100
+    return mape
+
+def plot_month_data_rooms(merged_data):
+    # Plotting using Plotly
     fig = go.Figure()
-    daily_ape = calculate_day_to_day_ape(actual_room_sales, predicted_room_sales)
-    # Plot actual room sold
-    fig.add_trace(go.Scatter(x=actual_dates, y=actual_room_sales, mode='lines+markers', name='Actual Room Sold', line=dict(color='blue'), textposition='bottom center'))
     
-    # Plot predicted sold
-    fig.add_trace(go.Scatter(x=predicted_dates, y=predicted_room_sales, mode='lines+markers', name='Predicted Room Sold', line=dict(color='red'), textposition='bottom center'))
-    # Plot error rate
-    fig.add_trace(go.Scatter(x=actual_dates, y=daily_ape, mode='lines+markers', name='Error Rate (%)', line=dict(color='green'), yaxis='y2'))
+    # Plotting bars for 2023
+    fig.add_trace(go.Bar(
+        x=merged_data['Month'],
+        y=merged_data['y'],
+        name='2023',
+        marker_color='skyblue'
+    ))
+    
     # Update layout for better interactivity
     fig.update_layout(
-        title=title,
-        xaxis=dict(title='Date'),
-        yaxis=dict(title='Room Sold', range=[0,150]),
-        yaxis2=dict(title='Error Rate (%)', overlaying='y', side='right', range=[0, 100]),
-        #yaxis2=dict(title='Error Rate (%)', overlaying='y', side='right', range=[0, max(daily_ape) + 5]),  # Adjust range as needed
+        barmode='group',  # Display bars in groups
+        title='Entities generated for Each Month (2023)',
+        xaxis=dict(title='Month'),
+        yaxis=dict(title='Total Entities'),
         hovermode='x',
-        showlegend=False,  # Hide legend for cleaner appearance
+        showlegend=True,
         legend_title='Legend',
         font=dict(family='Arial', size=14),
-        shapes=[
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=0,
-                y1=0,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=0,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=1,
-                x1=1,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=1,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-        ],
-        height=530,  # Adjust the height of the plot
-        width=530,   # Adjust the width of the plot
+        height=600,  # Adjust the height of the plot
+        width=1000,   # Adjust the width of the plot
         margin=dict(l=20, r=20, t=40, b=20),
     )
-
-    # Show the plot
-    st.plotly_chart(fig)
-
-# ---------------------------------------------------------------------
-
-
-def plot_arrival_rooms(actual_dates, actual_arrival_rooms, predicted_dates, predicted_arrival_rooms, title):
-    daily_ape = calculate_day_to_day_ape(actual_arrival_rooms, predicted_arrival_rooms)
-    fig = go.Figure()
-
-    # Plot actual room sold
-    fig.add_trace(go.Scatter(x=actual_dates, y=actual_arrival_rooms, mode='lines+markers', name='Actual Arrival Rooms', line=dict(color='blue'), textposition='bottom center'))
     
-    # Plot predicted sold
-    fig.add_trace(go.Scatter(x=predicted_dates, y=predicted_arrival_rooms, mode='lines+markers', name='Predicted Arrival Rooms', line=dict(color='red'), textposition='bottom center'))
-    fig.add_trace(go.Scatter(x=actual_dates, y=daily_ape, mode='lines+markers', name='Error Rate (%)', line=dict(color='green'), yaxis='y2'))
-    # Update layout for better interactivity
-    fig.update_layout(
-        title=title,
-        xaxis=dict(title='Date'),
-        yaxis=dict(title='Arrival Room', range=[0,90]),
-        yaxis2=dict(title='Error Rate (%)', overlaying='y', side='right', range=[0, 100]),
-        hovermode='x',
-        showlegend=False,  # Hide legend for cleaner appearance
-        legend_title='Legend',
-        font=dict(family='Arial', size=14),
-        shapes=[
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=0,
-                y1=0,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=0,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=1,
-                x1=1,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=1,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-        ],
-        height=530,  # Adjust the height of the plot
-        width=530,   # Adjust the width of the plot
-        margin=dict(l=20, r=20, t=40, b=20),
-    )
-
-    # Show the plot
-    st.plotly_chart(fig)
-
-# ---------------------------------------------------------------------
-def plot_individual_confirm(actual_dates, actual_arrival_rooms, predicted_dates, predicted_room_sales, title):
-    daily_ape = calculate_day_to_day_ape(actual_arrival_rooms, predicted_room_sales)
-    fig = go.Figure()
-
-    # Plot actual room sold
-    fig.add_trace(go.Scatter(x=actual_dates, y=actual_arrival_rooms, mode='lines+markers', name='Actual Individual Confirm', line=dict(color='blue'), textposition='bottom center'))
-    
-    # Plot predicted sold
-    fig.add_trace(go.Scatter(x=predicted_dates, y=predicted_room_sales, mode='lines+markers', name='Predicted Individual Confirm', line=dict(color='red'), textposition='bottom center'))
-    fig.add_trace(go.Scatter(x=actual_dates, y=daily_ape, mode='lines+markers', name='Error Rate (%)', line=dict(color='green'), yaxis='y2'))
-    # Update layout for better interactivity
-    fig.update_layout(
-        title=title,
-        xaxis=dict(title='Date'),
-        yaxis=dict(title='Individual Confirm', range=[0,130]),
-        yaxis2=dict(title='Error Rate (%)', overlaying='y', side='right', range=[0, 100]),
-        hovermode='x',
-        showlegend=False,  # Hide legend for cleaner appearance
-        legend_title='Legend',
-        font=dict(family='Arial', size=14),
-        shapes=[
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=0,
-                y1=0,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=0,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=1,
-                x1=1,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=1,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-        ],
-        height=530,  # Adjust the height of the plot
-        width=530,   # Adjust the width of the plot
-        margin=dict(l=20, r=20, t=40, b=20),
-    )
-
-    # Show the plot
+    # Show the plot in Streamlit
     st.plotly_chart(fig)
 # ---------------------------------------------------------------------
-def plot_individual_revenue(actual_dates, actual_arrival_rooms, predicted_dates, predicted_room_sales, title):
-    daily_ape = calculate_day_to_day_ape(actual_arrival_rooms, predicted_room_sales)
-    fig = go.Figure()
-
-    # Plot actual room sold
-    fig.add_trace(go.Scatter(x=actual_dates, y=actual_arrival_rooms, mode='lines+markers', name='Actual Individual Revenue', line=dict(color='blue'), textposition='bottom center'))
-    
-    # Plot predicted sold
-    fig.add_trace(go.Scatter(x=predicted_dates, y=predicted_room_sales, mode='lines+markers', name='Predicted Individual Revenue', line=dict(color='red'), textposition='bottom center'))
-    fig.add_trace(go.Scatter(x=actual_dates, y=daily_ape, mode='lines+markers', name='Error Rate (%)', line=dict(color='green'), yaxis='y2'))
-    # Update layout for better interactivity
-    fig.update_layout(
-        title=title,
-        xaxis=dict(title='Date'),
-        yaxis=dict(title='Individual Revenue', range=[0,1600000]),
-        yaxis2=dict(title='Error Rate (%)', overlaying='y', side='right', range=[0, 100]),
-        hovermode='x',
-      
-        showlegend=False,  # Hide legend for cleaner appearance
-        legend_title='Legend',
-        font=dict(family='Arial', size=14),
-        shapes=[
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=0,
-                y1=0,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=0,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=1,
-                x1=1,
-                y0=0,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-            dict(
-                type='line',
-                x0=0,
-                x1=1,
-                y0=1,
-                y1=1,
-                line=dict(color='lightgray', width=0.5),
-                xref='paper',
-                yref='paper'
-            ),
-        ],
-        height=530,  # Adjust the height of the plot
-        width=530,   # Adjust the width of the plot
-        margin=dict(l=20, r=20, t=40, b=20),
-    )
-
-    # Show the plot
-    st.plotly_chart(fig)
+def calculate_day_to_day_ape(actual, predicted):
+    actual, predicted = np.array(actual), np.array(predicted)
+    return np.abs((actual - predicted) / actual) * 100
 # ---------------------------------------------------------------------
+def calculate_mape(actual, predicted):
+    actual, predicted = np.array(actual), np.array(predicted)
+    mask = actual != 0
+    mape = (np.abs(actual - predicted) / actual)[mask].mean() * 100
+    return mape
+#---------------------------------------------------------------------
 def plot_month_data(merged_data):
     # Plotting using Plotly
     fig = go.Figure()
@@ -530,16 +288,55 @@ def plot_month_data_rooms(merged_data):
     # Show the plot in Streamlit
     st.plotly_chart(fig)
 # ---------------------------------------------------------------------
-def calculate_day_to_day_ape(actual, predicted):
-    actual, predicted = np.array(actual), np.array(predicted)
-    return np.abs((actual - predicted) / actual) * 100
-# ---------------------------------------------------------------------
+def evaluation_metrics(actual,predicted):
+    tp_for_10_days = 0
+    tn_for_10_days = 0
+    fp_for_10_days = 0
+    fn_for_10_days = 0
+    for i,j in zip(actual,predicted):
+        c = i-j
+        c = abs(i-j)
+        c = c*100/i
+        c  = 100-c
+        c= int(c)
+        if i <j:
+            if c>80 and c<100:
+                tp_for_10_days +=1
+            elif c<80:
+                fp_for_10_days+=1
+        elif  i>j:
+            if  c>80 and c<100:
+                tn_for_10_days +=1
+            elif c<80:
+                fn_for_10_days+=1
+
+    sensitivity = tp_for_10_days / (tp_for_10_days + fn_for_10_days) if (tp_for_10_days + fn_for_10_days) >0 else 0
+    specificity = tn_for_10_days / (tn_for_10_days + fp_for_10_days) if (tn_for_10_days + fp_for_10_days) > 0 else 0
+    precision = tp_for_10_days / (tp_for_10_days + fp_for_10_days) if (tp_for_10_days + fp_for_10_days) > 0 else 0
+    
+    return sensitivity,specificity,precision
 
 
 
 
 
+def aggregate_accuracy(df, freq):
+    # Ensure 'ds' is a column. If not, and if it's the index, reset it.
+    if 'Date' not in df.columns:
+        if df.index.name == 'Date':
+            df.reset_index(inplace=True)
+        else:
+            raise KeyError("'Date' column is missing in the input DataFrame. Please include it.")
+    
+    # Set 'ds' as the index for resampling
+    df.set_index('Date', inplace=True)
+    df_agg = df.resample(freq).sum()
+    df_agg['Accuracy'] = 1 - np.abs((df_agg['Actual'] - df_agg['Predicted']) / df_agg['Actual'])
+    df_agg['Accuracy'] = (df_agg['Accuracy'].clip(lower=0) * 100).round(2)
+    return df_agg.reset_index()
 
+
+#FOR MONTHLY VIEW AND DAILY VIEW
 
 def main():
     st.markdown(
@@ -579,233 +376,359 @@ def main():
         unsafe_allow_html=True,
     )
 
-#ROOM REVENUE
-    st.subheader("Predicted vs Actual ROOM REVENUE")
-    col1,col2 = st.columns(2)
-    import prop_for_revenue as rfs
-    #PLOT FOR FIRST 7 DAYS ROOM REVENUE
-    with col1:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,precision_values_for_7_days,precision_values_for_14_days,precision_values_for_21_days,specificity_values_for_7_days,specificity_values_for_14_days,specificity_values_for_21_days,mae1,mae2,mae3,merged_data = rfs.model_rev()
-        df_7_days_rev = pd.DataFrame({'Date': rfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-        plot_revenue_with_error(df_7_days_rev['Date'], df_7_days_rev['Actual'], df_7_days_rev['Date'], df_7_days_rev['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
-        st.write(f"MAE: {(mae1)}")
-        st.write(f"Specificity: {(specificity_values_for_7_days)}%")
-        st.write(f"Precision: {(precision_values_for_7_days)}%")
-        st.markdown("---")
+#FOR FETCHING DATA ACCURACY
+    connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb.net/"
+    client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
+    database_name = "Revenue_Forecasting"
+    db = client[database_name] 
+    collection4 = db["Accuracy"]
+    cursor4 = collection4.find({})
+    data4 = pd.DataFrame(list(cursor4))
+    data4 = data4.drop_duplicates() 
+    collection5 = db["Revenue"]
+    cursor5 = collection5.find({})
+    data5 = pd.DataFrame(list(cursor5))
+    data5 = data5.drop_duplicates() 
+    #--------------------------------------
     
-    #PLOT FOR 08-14 DAYS ROOM REVENUE
-    with col2:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = rfs.model_rev()
-        df_14_days_rev = pd.DataFrame({'Date': rfs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-        plot_revenue_with_error(df_14_days_rev['Date'], df_14_days_rev['Actual'], df_14_days_rev['Date'], df_14_days_rev['Predicted'], 'For 08-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
-        st.write(f"MAE: {(mae2)}")
-        st.write(f"Specificity: {(specificity_values_for_14_days)}%")
-        st.write(f"Precision: {(precision_values_for_14_days)}%")
-        st.markdown("---")
-    
-    #PLOT FOR 15-21 DAYS ROOM REVENUE
-    with col1:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = rfs.model_rev()
-        df_21_days_rev = pd.DataFrame({'Date': rfs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-        plot_revenue_with_error(df_21_days_rev['Date'], df_21_days_rev['Actual'], df_21_days_rev['Date'], df_21_days_rev['Predicted'], 'For 15-21 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
-        st.write(f"MAE: {(mae3)}")
-        st.write(f"Specificity: {(specificity_values_for_21_days)}%")
-        st.write(f"Precision: {(precision_values_for_21_days)}%")
-        st.markdown("---")
+    data1 =  data4[['Business Date','Room Revenue','Rooms Sold']]
+    data2 = data5[['Business Date','Room Revenue','Rooms Sold','Arrival Rooms','Individual Revenue','Individual Confirm']]
+    data = pd.concat([data1,data2],ignore_index=True)
+    print(len(data))
+    print(data)
+    #---------------------------------------------------------------------------
+    # st.subheader("Select Date Range for Analysis")
+    # date_range = st.date_input("Select Date Range", [])
+    # if len(date_range) == 2:
+    #     start_date, end_date = date_range
+    # else:
+    #     start_date, end_date = None, None  
 
-    #PLOT MONTH DATA
-    with col1:
-        plot_month_data(merged_data)
+    # if start_date and end_date:
+    #     data['Business Date'] = pd.to_datetime(data['Business Date'])
+    #     start_date = pd.to_datetime(start_date)
+    #     end_date = pd.to_datetime(end_date)
 
-    
+    #     # Filter data based on selected date range
+    #     filtered_data = data[(data['Business Date'] >= start_date) & (data['Business Date'] <= end_date)]
 
-    #ROOM SOLD
-    st.subheader("Predicted vs Actual ROOM SOLD")
-    col3,col4 = st.columns(2)
-    import prop_for_room_sold as pfs
-    #PLOT FOR FIRST 7 DAYS ROOM SOLD
-    with col3:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,precision_values_for_7_days,precision_values_for_14_days,precision_values_for_21_days,specificity_values_for_7_days,specificity_values_for_14_days,specificity_values_for_21_days,mae1,mae2,mae3,merged_data = pfs.model_R()
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = pfs.model_R()
-        df_7_days_room_sales = pd.DataFrame({'Date': pfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-        plot_room_sold_with_error_rate(df_7_days_room_sales['Date'], df_7_days_room_sales['Actual'], df_7_days_room_sales['Date'], df_7_days_room_sales['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_7_days)}%")
-        st.write(f"Precision: {(precision_values_for_7_days)}%")
-        st.write(f"MAE: {(mae1)}")
-        st.markdown("---")
-    
-    #PLOT FOR 08-14 DAYS ROOM SOLD
-    with col4:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = pfs.model_R()
-        df_14_days_room_sales = pd.DataFrame({'Date': pfs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-        plot_room_sold_with_error_rate(df_14_days_room_sales['Date'], df_14_days_room_sales['Actual'], df_14_days_room_sales['Date'], df_14_days_room_sales['Predicted'], 'For 08-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))+1}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
-        st.write(f"MAE: {(mae2)}")
-        st.write(f"Specificity: {(specificity_values_for_14_days)}%")
-        st.write(f"Precision: {(precision_values_for_14_days)}%")
-        st.markdown("---")
-    
-    #PLOT FOR 15-21 DAYS ROOM SOLD
-    with col3:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = pfs.model_R()
-        df_21_days_room_sales = pd.DataFrame({'Date': pfs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-        plot_room_sold_with_error_rate(df_21_days_room_sales['Date'], df_21_days_room_sales['Actual'], df_21_days_room_sales['Date'], df_21_days_room_sales['Predicted'], 'For 15-21 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_21_days)}%")
-        st.write(f"Precision: {(precision_values_for_21_days)}%")
-        st.write(f"MAE: {(mae3)}")
-        st.markdown("---")
-
-    #PLOT MONTH ROOMS SOLD
-    with col3:
-        plot_month_data(merged_data)
+    #     # Show filtered data or perform further analysis
+    #     st.write("Filtered Data", filtered_data)  # Placeholder for actual data handling
+    # else:
+    #     st.write("Please select a start and end date to filter the data.")
+   
+    #YEARLY, MONTH, DAILY AND WEEKLY VIEW
+    st.subheader("Prediction")
+    options = ["", "Room Revenue", "Room Sold", "Arrival Room", "Individual Confirm", "Individual Revenue"]
+    view_option = st.selectbox("Select Feature", options, index=0)  # Set the first item as default
+    #view_option = st.selectbox("Select View", ['Room Revenue','Room Sold','Arrival Room','Individual Confirm','Individual Revenue'])
+ 
+   
+    #DAY TO DAY REVENUE
+    if view_option == 'Room Revenue':
+        import revenue as rev
+        st.header('Daily Revenue')
+        result_df, merged_data = rev.prophet()
+        result_df = result_df.rename(columns={'ds': 'Date','y': 'Actual','yhat': 'Predicted','Daily Accuracy': 'Accuracy'})
+        result_df['Predicted'] = result_df['Predicted'].round()
+        result_df['Accuracy'] = (result_df['Accuracy']*100).round()
+        st.dataframe(result_df[['Date','Actual','Predicted','Accuracy']], hide_index=True)
+        plot_graph_with_error(result_df['Date'],result_df['Actual'],result_df['Predicted'],(0,2000000))
+        st.write(f"Accuracy :{round(mean(result_df['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(result_df['Actual'],result_df['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[2]}")
+        #plot_month_data(merged_data)
 
 
-    #ARRIVAL ROOMS
-    st.subheader("Predicted vs Actual Arrival Rooms")
-    col5,col6 = st.columns(2)
-    import prop_for_AR as afs
-    #PLOT FOR FIRST 7 DAYS ARRIVAL ROOMS
-    with col5:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,precision_values_for_7_days,precision_values_for_14_days,precision_values_for_21_days,specificity_values_for_7_days,specificity_values_for_14_days,specificity_values_for_21_days,mae1,mae2,mae3,merged_data = afs.model_A()
-       # Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = afs.model_A()
-        df_7_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-        plot_arrival_rooms(df_7_days_Arrival_rooms['Date'], df_7_days_Arrival_rooms['Actual'], df_7_days_Arrival_rooms['Date'], df_7_days_Arrival_rooms['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_7_days)}%")
-        st.write(f"Precision: {(precision_values_for_7_days)}%")
-        st.write(f"MAE: {(mae1)}")
-        st.markdown("---")
-    
-    #PLOT FOR 08-14 DAYS ARRIVAL ROOMS
-    with col6:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = afs.model_A()
-        df_14_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-        plot_arrival_rooms(df_14_days_Arrival_rooms['Date'], df_14_days_Arrival_rooms['Actual'], df_14_days_Arrival_rooms['Date'], df_14_days_Arrival_rooms['Predicted'], 'For 08-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_14_days)}%")
-        st.write(f"Precision: {(precision_values_for_14_days)}%")
-        st.write(f"MAE: {(mae2)}")
-        st.markdown("---")
-    
-    #PLOT FOR 15-21 DAYS ARRIVAL ROOMS
-    with col5:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = afs.model_A()
-        df_21_days_Arrival_rooms = pd.DataFrame({'Date': afs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-        plot_arrival_rooms(df_21_days_Arrival_rooms['Date'], df_21_days_Arrival_rooms['Actual'], df_21_days_Arrival_rooms['Date'], df_21_days_Arrival_rooms['Predicted'], 'For 15-21 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_21_days)}%")
-        st.write(f"Precision: {(precision_values_for_21_days)}%")
-        st.write(f"MAE: {(mae3)}")
-        st.markdown("---")
-
-    with col5:
-        plot_month_data_rooms(merged_data)
-
-    
-    
-    #Individual Confirm
-    st.subheader("Predicted vs Actual Individual Confirm")
-    col7,col8 = st.columns(2)
-    import prop_for_IC as bfs
-    #PLOT FOR FIRST 7 DAYS INDIVIDUAL CONFIRM
-    with col7:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,precision_values_for_7_days,precision_values_for_14_days,precision_values_for_21_days,specificity_values_for_7_days,specificity_values_for_14_days,specificity_values_for_21_days,mae1,mae2,mae3,merged_data = bfs.model_IC()
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = bfs.model_IC()
-        df_7_days_Individual_Confirm = pd.DataFrame({'Date': bfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-        plot_individual_confirm(df_7_days_Individual_Confirm['Date'], df_7_days_Individual_Confirm['Actual'], df_7_days_Individual_Confirm['Date'], df_7_days_Individual_Confirm['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_7_days)}%")
-        st.write(f"Precision: {(precision_values_for_7_days)}%")
-        st.write(f"MAE: {(mae1)}")
-        st.markdown("---")
-    
-    #PLOT FOR 08-14 DAYS INDIVIDUAL CONFIRM
-    with col8:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = bfs.model_IC()
-        df_14_days_Individual_Confirm = pd.DataFrame({'Date': bfs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-        plot_individual_confirm(df_14_days_Individual_Confirm['Date'], df_14_days_Individual_Confirm['Actual'], df_14_days_Individual_Confirm['Date'], df_14_days_Individual_Confirm['Predicted'], 'For 08-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_14_days)}%")
-        st.write(f"Precision: {(precision_values_for_14_days)}%")
-        st.write(f"MAE: {(mae2)}")
-        st.markdown("---")
-    
-    #PLOT FOR 15-21 DAYS INDIVIDUAL CONFIRM
-    with col7:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = bfs.model_IC()
-        df_21_days_Individual_Confirm = pd.DataFrame({'Date': bfs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-        plot_individual_confirm(df_21_days_Individual_Confirm['Date'], df_21_days_Individual_Confirm['Actual'],df_21_days_Individual_Confirm['Date'], df_21_days_Individual_Confirm['Predicted'], 'For 15-21 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_21_days)}%")
-        st.write(f"Precision: {(precision_values_for_21_days)}%")
-        st.write(f"MAE: {(mae3)}")
-        st.markdown("---")
-
-    with col7:
-        plot_month_data_rooms(merged_data)
-
-    
-    #Individual Revenue
-    st.subheader("Predicted vs Actual Individual Revenue")
-    col9,col10 = st.columns(2)
-    import prop_for_IR as dfs
-    #PLOT FOR FIRST 7 DAYS INDIVIDUAL REVENUE
-    with col9:
-        Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,precision_values_for_7_days,precision_values_for_14_days,precision_values_for_21_days,specificity_values_for_7_days,specificity_values_for_14_days,specificity_values_for_21_days,mae1,mae2,mae3,merged_data = dfs.model_IR()
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days,sensitivity_values_for_7_days,sensitivity_values_for_14_days,sensitivity_values_for_21_days,mae1,mae2,mae3,merged_data = dfs.model_IR()
-        df_7_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_7_days['ds'], 'Actual': Actual_for_7_days, 'Predicted': Predicted_for_7_days})
-        plot_individual_revenue(df_7_days_IR['Date'], df_7_days_IR['Actual'], df_7_days_IR['Date'], df_7_days_IR['Predicted'], 'For 0-07 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_7_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_7_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_7_days)}%")
-        st.write(f"Precision: {(precision_values_for_7_days)}%")
-        st.write(f"MAE: {(mae1)}")
-        st.markdown("---")
-    
-    #PLOT FOR 08-14 DAYS INDIVIDUAL REVENUE
-    with col10:
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = dfs.model_IR()
-        df_14_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_14_days['ds'], 'Actual': Actual_for_14_days, 'Predicted': Predicted_for_14_days})
-        plot_individual_revenue(df_14_days_IR['Date'], df_14_days_IR['Actual'], df_14_days_IR['Date'], df_14_days_IR['Predicted'], 'For 08-14 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_14_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_14_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_14_days)}%")
-        st.write(f"Precision: {(precision_values_for_14_days)}%")
-        st.write(f"MAE: {(mae2)}")
-        st.markdown("---")
-    
-    #PLOT FOR 15-21 DAYS INDIVIDUAL REVENUE
-    with col9:
+        #WEEKLY REVENUE
+        st.header('Weekly Revenue')
+        weekly_data = aggregate_accuracy(result_df, 'W')
+        st.dataframe(weekly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(weekly_data['Date'], weekly_data['Actual'], weekly_data['Predicted'],(0, 16000000))
+        st.write(f"Accuracy :{round(mean(weekly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(weekly_data['Actual'],weekly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[2]}")
         
-        #Actual_for_7_days,Predicted_for_7_days,Accuracy_for_7_days,Actual_for_14_days,Predicted_for_14_days,Accuracy_for_14_days,Actual_for_21_days,Predicted_for_21_days,Accuracy_for_21_days, = dfs.model_IR()
-        df_21_days_IR = pd.DataFrame({'Date': dfs.test_data_for_next_21_days['ds'], 'Actual': Actual_for_21_days, 'Predicted': Predicted_for_21_days})
-        plot_individual_revenue(df_21_days_IR['Date'], df_21_days_IR['Actual'], df_21_days_IR['Date'], df_21_days_IR['Predicted'], 'For 15-21 Days')
-        st.write(f"Accuracy: {round(mean(Accuracy_for_21_days))}%")
-        st.write(f"Sensitivity: {(sensitivity_values_for_21_days)}%")
-        st.write(f"Specificity: {(specificity_values_for_21_days)}%")
-        st.write(f"Precision: {(precision_values_for_21_days)}%")
-        st.write(f"MAE: {(mae3)}")
-        st.markdown("---")
 
-    with col9:
-        plot_month_data_rooms(merged_data)
-    
+
+        #MONTHLY REVENUE
+        st.header('Monthly Revenue')
+        monthly_data = aggregate_accuracy(result_df, 'M')
+        st.dataframe(monthly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(monthly_data['Date'], monthly_data['Actual'], monthly_data['Predicted'],(0, 60000000))
+        st.write(f"Accuracy :{round(mean(monthly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(monthly_data['Actual'],monthly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[2]}")
+
+        #YEARLY REVENUE
+        st.header('Yearly Revenue')
+        yearly_data = aggregate_accuracy(result_df, 'Y')
+        st.dataframe(yearly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(yearly_data['Date'], yearly_data['Actual'], yearly_data['Predicted'],(0, 150000000))
+        st.write(f"Accuracy :{round(mean(yearly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(yearly_data['Actual'],yearly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[2]}")
+
+    elif view_option == 'Room Sold':
+        #DAY TO DAY ROOM SOLD
+        import room_sold as room 
+        st.header('DAY TO DAY ROOM SOLD')
+        result_df, merged_data = room.prophet()
+        result_df = result_df.rename(columns={'ds': 'Date','y': 'Actual','yhat': 'Predicted','Daily Accuracy': 'Accuracy'})
+        result_df['Predicted'] = result_df['Predicted'].round()
+        result_df['Accuracy'] = (result_df['Accuracy']*100).round()
+        st.dataframe(result_df[['Date','Actual','Predicted','Accuracy']], hide_index=True)
+        plot_graph_with_error(result_df['Date'],result_df['Actual'],result_df['Predicted'],(0,150))
+        st.write(f"Accuracy :{round(mean(result_df['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(result_df['Actual'],result_df['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[2]}")
+
+        #WEEKLY ROOM SOLD
+        st.header('Weekly ROOM SOLD')
+        weekly_data = aggregate_accuracy(result_df, 'W')
+        st.dataframe(weekly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(weekly_data['Date'], weekly_data['Actual'], weekly_data['Predicted'],(0, 1200))
+        st.write(f"Accuracy :{round(mean(weekly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(weekly_data['Actual'],weekly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[2]}")
+      
+
+        #MONTHLY ROOM SOLD
+        st.header('Monthly ROOM SOLD')
+        monthly_data = aggregate_accuracy(result_df, 'M')
+        st.dataframe(monthly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(monthly_data['Date'], monthly_data['Actual'], monthly_data['Predicted'],(0, 5000))
+        st.write(f"Accuracy :{round(mean(monthly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(monthly_data['Actual'],monthly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[2]}")
+
+
+        #YEARLY ROOM SOLD
+        st.header('Yearly ROOM SOLD')
+        yearly_data = aggregate_accuracy(result_df, 'Y')
+        st.dataframe(yearly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(yearly_data['Date'], yearly_data['Actual'], yearly_data['Predicted'],(0, 12000))
+        st.write(f"Accuracy :{round(mean(yearly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(yearly_data['Actual'],yearly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[2]}")
+       
+
+    elif view_option == "Arrival Room":
+        #DAY TO DAY ARRIVAL ROOM
+        import Arrival as arriv
+        st.header('DAY TO DAY ARRIVAL ROOM')
+        result_df, merged_data = arriv.prophet()
+        result_df = result_df.rename(columns={'ds': 'Date','y': 'Actual','yhat': 'Predicted','Daily Accuracy': 'Accuracy'})
+        result_df['Predicted'] = result_df['Predicted'].round()
+        result_df['Accuracy'] = (result_df['Accuracy']*100).round()
+        st.dataframe(result_df[['Date','Actual','Predicted','Accuracy']], hide_index=True)
+        plot_graph_with_error(result_df['Date'],result_df['Actual'],result_df['Predicted'],(0,150))
+        st.write(f"Accuracy :{round(mean(result_df['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(result_df['Actual'],result_df['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[2]}")
+       
+
+        #WEEKLY ARRIVAL ROOM
+        st.header('Weekly ARRIVAL ROOM')
+        weekly_data = aggregate_accuracy(result_df, 'W')
+        st.dataframe(weekly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(weekly_data['Date'], weekly_data['Actual'], weekly_data['Predicted'],(0, 1200))
+        st.write(f"Accuracy :{round(mean(weekly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(weekly_data['Actual'],weekly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[2]}")
+      
+
+        #MONTHLY ARRIVAL ROOM
+        st.header('Monthly ARRIVAL ROOM')
+        monthly_data = aggregate_accuracy(result_df, 'M')
+        st.dataframe(monthly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(monthly_data['Date'], monthly_data['Actual'], monthly_data['Predicted'],(0, 5000))
+        st.write(f"Accuracy :{round(mean(monthly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(monthly_data['Actual'],monthly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[2]}")
+
+
+        #YEARLY ARRIVAL ROOM
+        st.header('Yearly ARRIVAL ROOM')
+        yearly_data = aggregate_accuracy(result_df, 'Y')
+        st.dataframe(yearly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(yearly_data['Date'], yearly_data['Actual'], yearly_data['Predicted'],(0, 12000))
+        st.write(f"Accuracy :{round(mean(yearly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(yearly_data['Actual'],yearly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[2]}")
+
+    elif view_option == "Individual Revenue":
+        #DAY TO DAY Individual Revenue
+        import Individual_R as ir
+        st.header('DAY TO DAY Individual Revenue')
+        result_df, merged_data = ir.prophet()
+        result_df = result_df.rename(columns={'ds': 'Date','y': 'Actual','yhat': 'Predicted','Daily Accuracy': 'Accuracy'})
+        result_df['Predicted'] = result_df['Predicted'].round()
+        result_df['Accuracy'] = (result_df['Accuracy']*100).round()
+        st.dataframe(result_df[['Date','Actual','Predicted','Accuracy']], hide_index=True)
+        plot_graph_with_error(result_df['Date'],result_df['Actual'],result_df['Predicted'],(0,2000000))
+        st.write(f"Accuracy :{round(mean(result_df['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(result_df['Actual'],result_df['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[2]}")
+        
+
+        #WEEKLY Individual Revenue
+        st.header('Weekly Individual Revenue')
+        weekly_data = aggregate_accuracy(result_df, 'W')
+        st.dataframe(weekly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(weekly_data['Date'], weekly_data['Actual'], weekly_data['Predicted'],(0, 16000000))
+        st.write(f"Accuracy :{round(mean(weekly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(weekly_data['Actual'],weekly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[2]}")
+
+        #MONTHLY Individual Revenue
+        st.header('Monthly Individual Revenue')
+        monthly_data = aggregate_accuracy(result_df, 'M')
+        st.dataframe(monthly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(monthly_data['Date'], monthly_data['Actual'], monthly_data['Predicted'],(0, 60000000))
+        st.write(f"Accuracy :{round(mean(monthly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(monthly_data['Actual'],monthly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[2]}")
+
+
+        
+
+        #YEARLY Individual Revenue
+        st.header('Yearly Individual Revenue')
+        yearly_data = aggregate_accuracy(result_df, 'Y')
+        st.dataframe(yearly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(yearly_data['Date'], yearly_data['Actual'], yearly_data['Predicted'],(0, 150000000))
+        st.write(f"Accuracy :{round(mean(yearly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(yearly_data['Actual'],yearly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[2]}")
+
+    elif view_option == "Individual Confirm":
+        #DAY TO DAY Individual Confirm
+        import Confirm as ir
+        st.header('DAY TO DAY Individual Confirm')
+        result_df, merged_data = ir.prophet()
+        result_df = result_df.rename(columns={'ds': 'Date','y': 'Actual','yhat': 'Predicted','Daily Accuracy': 'Accuracy'})
+        result_df['Predicted'] = result_df['Predicted'].round()
+        result_df['Accuracy'] = (result_df['Accuracy']*100).round()
+        st.dataframe(result_df[['Date','Actual','Predicted','Accuracy']], hide_index=True)
+        plot_graph_with_error(result_df['Date'],result_df['Actual'],result_df['Predicted'],(0,150))
+        st.write(f"Accuracy :{round(mean(result_df['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(result_df['Actual'],result_df['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(result_df['Actual'],result_df['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(result_df['Actual'],result_df['Predicted'])[2]}")
+
+        #WEEKLY Individual Confirm
+        st.header('Weekly Individual Confirm')
+        weekly_data = aggregate_accuracy(result_df, 'W')
+        st.dataframe(weekly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(weekly_data['Date'], weekly_data['Actual'], weekly_data['Predicted'],(0, 1200))
+        st.write(f"Accuracy :{round(mean(weekly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(weekly_data['Actual'],weekly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(weekly_data['Actual'],weekly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(weekly_data['Actual'],weekly_data['Predicted'])[2]}")
+      
+
+        #MONTHLY Individual Confirm
+        st.header('Monthly Individual Confirm')
+        monthly_data = aggregate_accuracy(result_df, 'M')
+        st.dataframe(monthly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(monthly_data['Date'], monthly_data['Actual'], monthly_data['Predicted'],(0, 5000))
+        st.write(f"Accuracy :{round(mean(monthly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(monthly_data['Actual'],monthly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(monthly_data['Actual'],monthly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(monthly_data['Actual'],monthly_data['Predicted'])[2]}")
+
+        
+
+        #YEARLY Individual Confirm
+        st.header('Yearly Individual Confirm')
+        yearly_data = aggregate_accuracy(result_df, 'Y')
+        st.dataframe(yearly_data[['Date', 'Actual', 'Predicted', 'Accuracy']], hide_index=True)
+        plot_graph_with_error(yearly_data['Date'], yearly_data['Actual'], yearly_data['Predicted'],(0, 12000))
+        st.write(f"Accuracy :{round(mean(yearly_data['Accuracy']))}%")
+        st.write(f"MAE:{round(mean_absolute_error(yearly_data['Actual'],yearly_data['Predicted']))}")
+        st.write(f"MAPE:{round(calculate_mape(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"MSE:{round(mean_squared_error(yearly_data['Actual'],yearly_data['Predicted']))}%")
+        st.write(f"Sensitivity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[0]}")
+        st.write(f"Specificity: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[1]}")
+        st.write(f"Precision: {evaluation_metrics(yearly_data['Actual'],yearly_data['Predicted'])[2]}")
+        
+
+
+
+
 if __name__ == '__main__':
     main()

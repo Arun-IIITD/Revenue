@@ -58,62 +58,34 @@ def prophet():
         interval_width=0.95
     )
     model.fit(train_data)
+    future_for_365_days = model.make_future_dataframe(periods=90, freq='D', include_history=False)
+    forecast = model.predict(future_for_365_days)
+    forecast = forecast.set_index('ds')[['yhat']].join(test_data.set_index('ds'))
 
-    # Generate a future dataframe for the next 90 days
-    future_for_90_days = model.make_future_dataframe(periods=90, freq='D', include_history=False)
-    forecast = model.predict(future_for_90_days)
+    forecast['Daily Accuracy'] = 1 - (np.abs(forecast['y'] - forecast['yhat']) / forecast['y']).clip(lower=0)
+    forecast['Weekly Accuracy'] = forecast['Daily Accuracy'].resample('W').mean()
+    forecast['Monthly Accuracy'] = forecast['Daily Accuracy'].resample('M').mean()
+    forecast['Yearly Accuracy'] = forecast['Daily Accuracy'].resample('A').mean()
 
+    forecast.reset_index(inplace=True)
 
-    # Initialize an empty list to store accuracy for each day
-    daily_accuracies = []
+    results_df = forecast[['ds', 'y', 'yhat', 'Daily Accuracy', 'Weekly Accuracy', 'Monthly Accuracy', 'Yearly Accuracy']]
+    results_df['Weekly Accuracy'].ffill(inplace=True)
+    results_df['Monthly Accuracy'].ffill(inplace=True)
+    results_df['Yearly Accuracy'].ffill(inplace=True)
 
-    # Loop through each day in the forecast
-    for i in range(90):
-        predicted_value = forecast.iloc[i]['yhat']
-        actual_value = test_data.iloc[i]['y']  # Ensure test_data is correctly aligned with forecast dates
-
-        # Calculate the accuracy for the day as 1 - absolute percentage error
-        accuracy = 1 - np.abs((actual_value - predicted_value) / actual_value)
-        accuracy = max(0, accuracy)  # Ensure accuracy is not negative
-        daily_accuracies.append(accuracy)
-
-    # Optionally, create a DataFrame to neatly display the date and its corresponding daily accuracy
-    results_df = pd.DataFrame({
-        'Date': forecast['ds'].iloc[:90],
-       
-        'Actual': test_data['y'].values[:90],  # Assuming test_data is correctly prepared
-         'Predicted': forecast['yhat'].iloc[:90],
-        'Accuracy': daily_accuracies
-    })
-
-    p = results_df['Accuracy'].tolist()
-    accu = []
-    for i in p:
-        i = i*100
-        accu.append(round(i))
+    
 
     # Convert to datetime and extract year and month
     data6['ds'] = pd.to_datetime(data6['ds'])
     data6['Year'] = data6['ds'].dt.year
     data6['Month'] = data6['ds'].dt.strftime('%B')  # Month in full name
-
-    month_order = [
-        'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
-    ]
-
+    month_order = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     data6['Month'] = pd.Categorical(data6['Month'], categories=month_order, ordered=True)
-
-    # Separate data for each year
     data_2022 = data6[data6['Year'] == 2022]
     data_2023 = data6[data6['Year'] == 2023]
-
-    # Group by month and sum the revenues for each year
     monthly_total_revenue_2022 = data_2022.groupby('Month')['y'].sum().reset_index()
     monthly_total_revenue_2023 = data_2023.groupby('Month')['y'].sum().reset_index()
-
-    # Merge the data for 2022 and 2023
     merged_data = pd.merge(monthly_total_revenue_2022, monthly_total_revenue_2023, on='Month', suffixes=('_2022', '_2023'))
-
-
 
     return results_df, merged_data

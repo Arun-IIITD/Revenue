@@ -5,7 +5,7 @@ import pymongo
 import os
 from datetime import datetime, timedelta
 from datetime import datetime, timedelta
-from streamlit_extras.switch_page_button import switch_page
+#from streamlit_extras.switch_page_button import switch_page
 
 st.set_page_config(page_title="Daily Overview", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
 # st.set_page_config(page_title="Revenue Forecasting", page_icon=":overview", layout="wide", initial_sidebar_state="collapsed")
@@ -97,10 +97,9 @@ def custom_top_bar(selected_page=None):
             <a style="color: {'red' if selected_page == 'Daily_Overview' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Daily_Overview' else 'none'}" href="/Daily_Overview" target="_self">Daily Overview</a>
             <a style="color: {'red' if selected_page == 'Revenue_Analysis' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Revenue_Analysis' else 'none'}" href="/Revenue_Analysis" target="_self">Revenue Analysis</a>
             <a style="color: {'red' if selected_page == 'Report' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Report' else 'none'}" href="/Report" target="_self">Report</a>
-            <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
             <a style="color: {'red' if selected_page == 'Upload' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Upload' else 'none'}" href="/Upload" target="_self">Manage Collections</a>
             <a style="color: {'red' if selected_page == 'market' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'market' else 'none'}" href="/market" target="_self">market</a>
-            <a style="color: {'red' if selected_page == 'View' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'View' else 'none'}" href="/View" target="_self">View</a>
+            <a style="color: {'red' if selected_page == 'Prediction' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'Prediction' else 'none'}" href="/Prediction" target="_self">Prediction</a>
             <a style="color: {'red' if selected_page == 'trend' else '#333'}; border-bottom: {'2px solid red' if selected_page == 'trend' else 'none'}" href="/trend" target="_self">trend</a>
         </div>
     </div>
@@ -116,10 +115,10 @@ url_to_page = {
     "/Daily_Overview": "Daily_Overview",
     "/Revenue_Analysis": "Revenue_Analysis",
     "/Report": "Report",
-    "/Prediction": "Prediction",
+  #  "/Prediction": "Prediction",
     "/upload": "Upload",
     "/market": "market",
-      "/View": "View",
+      "/Prediction": "Prediction",
       "/trend": "trend",
 }
 selected_page = url_to_page.get(url_path)
@@ -130,7 +129,7 @@ connection_uri = "mongodb+srv://annu21312:6dPsrXPfhm19YxXl@hello.hes3iy5.mongodb
 client = pymongo.MongoClient(connection_uri, serverSelectionTimeoutMS=30000)
 database_name = "Revenue_Forecasting"
 db = client[database_name]
-collection = db["Forecastin"]
+collection = db["Revenue"]
 
 last_business_date_result = collection.find({}, {"Business Date": 1}).sort("Business Date", pymongo.DESCENDING).limit(1)
 last_business_date = last_business_date_result[0]["Business Date"] if collection.count_documents({}) > 0 else datetime.now().strftime("%Y-%m-%d")

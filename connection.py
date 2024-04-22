@@ -89,7 +89,6 @@ collection4.delete_many({})
 df4 = pd.read_excel("accuracy.xlsx")
 data4 = df4.drop_duplicates() 
 data4 = df4.to_dict(orient="records")
- 
 result4 = collection4.insert_many(data4)
 
 collection5 = db["Revenue"]
@@ -97,6 +96,6 @@ collection5.delete_many({})
 df5 = pd.read_excel("revenue.xlsx")
 data5 = df5.drop_duplicates()
 data5 = df5.to_dict(orient='records')
-
 result5 = collection5.insert_many(data5)
+
 client.close()

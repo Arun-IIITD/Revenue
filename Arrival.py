@@ -39,7 +39,7 @@ data4 = data4.drop_duplicates()
 data4 = data4.sort_values(by='ds')
 data4 = data4.drop_duplicates()  
 train_data = data4.iloc[520:775]
-test_data = data4.iloc[775:860]
+test_data = data4.iloc[775:865]
 
 
 def prophet():
@@ -54,40 +54,55 @@ def prophet():
         interval_width=0.95
     )
     model.fit(train_data)
+    future_for_365_days = model.make_future_dataframe(periods=89, freq='D', include_history=False)
+    forecast = model.predict(future_for_365_days)
+    forecast = forecast.set_index('ds')[['yhat']].join(test_data.set_index('ds'))
 
-    # Generate a future dataframe for the next 90 days
-    future_for_90_days = model.make_future_dataframe(periods=85, freq='D', include_history=False)
-    forecast = model.predict(future_for_90_days)
+    forecast['Daily Accuracy'] = 1 - (np.abs(forecast['y'] - forecast['yhat']) / forecast['y']).clip(lower=0)
+    forecast['Weekly Accuracy'] = forecast['Daily Accuracy'].resample('W').mean()
+    forecast['Monthly Accuracy'] = forecast['Daily Accuracy'].resample('M').mean()
+    forecast['Yearly Accuracy'] = forecast['Daily Accuracy'].resample('A').mean()
+
+    forecast.reset_index(inplace=True)
+
+    results_df = forecast[['ds', 'y', 'yhat', 'Daily Accuracy', 'Weekly Accuracy', 'Monthly Accuracy', 'Yearly Accuracy']]
+    results_df['Weekly Accuracy'].ffill(inplace=True)
+    results_df['Monthly Accuracy'].ffill(inplace=True)
+    results_df['Yearly Accuracy'].ffill(inplace=True)
+
+    # # Generate a future dataframe for the next 90 days
+    # future_for_90_days = model.make_future_dataframe(periods=85, freq='D', include_history=False)
+    # forecast = model.predict(future_for_90_days)
 
 
-    # Initialize an empty list to store accuracy for each day
-    daily_accuracies = []
+    # # Initialize an empty list to store accuracy for each day
+    # daily_accuracies = []
 
-    # Loop through each day in the forecast
-    for i in range(85):
-        predicted_value = forecast.iloc[i]['yhat']
-        print(round(predicted_value))
-        actual_value = test_data.iloc[i]['y']  # Ensure test_data is correctly aligned with forecast dates
-        print(actual_value)
+    # # Loop through each day in the forecast
+    # for i in range(85):
+    #     predicted_value = forecast.iloc[i]['yhat']
+    #     print(round(predicted_value))
+    #     actual_value = test_data.iloc[i]['y']  # Ensure test_data is correctly aligned with forecast dates
+    #     print(actual_value)
 
-        # Calculate the accuracy for the day as 1 - absolute percentage error
-        accuracy = 1 - np.abs((actual_value - predicted_value) / actual_value)
-        accuracy = max(0, accuracy)  # Ensure accuracy is not negative
-        daily_accuracies.append(accuracy)
+    #     # Calculate the accuracy for the day as 1 - absolute percentage error
+    #     accuracy = 1 - np.abs((actual_value - predicted_value) / actual_value)
+    #     accuracy = max(0, accuracy)  # Ensure accuracy is not negative
+    #     daily_accuracies.append(accuracy)
 
-    # Optionally, create a DataFrame to neatly display the date and its corresponding daily accuracy
-    results_df = pd.DataFrame({
-        'Date': forecast['ds'].iloc[:85],
-        'Actual': test_data['y'].values[:85],  # Assuming test_data is correctly prepared
-        'Predicted': forecast['yhat'].iloc[:85],
-        'Accuracy': daily_accuracies
-    })
+    # # Optionally, create a DataFrame to neatly display the date and its corresponding daily accuracy
+    # results_df = pd.DataFrame({
+    #     'Date': forecast['ds'].iloc[:85],
+    #     'Actual': test_data['y'].values[:85],  # Assuming test_data is correctly prepared
+    #     'Predicted': forecast['yhat'].iloc[:85],
+    #     'Accuracy': daily_accuracies
+    # })
 
-    p = results_df['Accuracy'].tolist()
-    accu = []
-    for i in p:
-        i = i*100
-        accu.append(round(i))
+    # p = results_df['Accuracy'].tolist()
+    # accu = []
+    # for i in p:
+    #     i = i*100
+    #     accu.append(round(i))
 
     # Convert 'ds' to datetime
     data4['ds'] = pd.to_datetime(data4['ds'])
